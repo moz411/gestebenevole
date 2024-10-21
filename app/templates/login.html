@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+        <div class="col-md-4">
+            <form class="form-signin" method="POST" action="/login">
+                <h1 class="h3 mb-3 font-weight-normal text-center">Veuillez vous connecter</h1>
+                <label for="inputEmail" class="sr-only">Adresse email</label>
+                <input type="email" name="email" id="inputEmail" class="form-control mb-2" placeholder="Adresse email"
+                    required autofocus>
+                <label for="inputPassword" class="sr-only">Mot de passe</label>
+                <input type="password" name="password" id="inputPassword" class="form-control mb-2"
+                    placeholder="Mot de passe" required>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Se connecter</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-5">
+            <img src="{{ url_for('static', filename='medecins-benevoles.png') }}" alt="Medecins Benevole"
+                class="img-fluid">
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

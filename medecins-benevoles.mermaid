@@ -1,0 +1,96 @@
+erDiagram
+%%{init: {
+  "themeCSS": [
+    ".er.relationshipLabel { fill: black; }", 
+    ".er.relationshipLabelBox { fill: white; }", 
+    ".er.entityBox { fill: lightgray; }",
+    "[id^=entity-User] .er.entityBox { fill: lightgreen;} ",
+    "[id^=entity-File] .er.entityBox { fill: powderblue;} ",
+    "[id^=entity-Patient] .er.entityBox { fill: pink;} ",
+    "[id^=entity-Consultation] .er.entityBox { fill: yellow;}",
+    "[id^=entity-Prescription] .er.entityBox { fill: magenta;}"
+    ]
+}}%%
+Role {
+    Integer id PK
+    String name
+}
+
+User {
+    Integer id PK
+    String name
+    String email
+    String password
+    String phone
+    Integer role FK
+}
+
+Patient {
+    Integer id PK
+    String name
+    Date added
+    Date birth
+    String gender
+    String address
+    String addressed_by
+    String phone
+    String email
+    String nationality
+    String treatment
+    String vaccination
+    String rights
+    Text history
+    Integer accommodation FK
+    Integer city FK
+}
+
+File {
+    Integer id PK
+    Integer patient FK
+    Date date
+    String notes
+    Boolean closed
+}
+
+Consultation {
+    Integer id PK
+    Integer file FK
+    Integer healer FK
+    Date date
+    String motive
+    Text notes
+}
+
+Drugstore {
+    Integer id PK
+    String name
+    Integer qty
+}
+
+Prescription {
+    Integer id PK
+    Date date
+    Integer consultation FK
+    Integer drugstore FK
+    Integer qty
+    Text notes
+}
+
+City {
+    Integer id PK
+    String name
+}
+
+Accomodation {
+    Integer id PK
+    String name
+}
+
+User ||--o{ Role : has
+Patient ||--o{ Accomodation : has
+Patient ||--o{ City : has
+File ||--o{ Patient : has
+Consultation ||--o{ File : has
+Consultation ||--o{ User : healed_by
+Prescription ||--o{ Consultation : has
+Prescription ||--o{ Drugstore : includes

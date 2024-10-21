@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div id="entries">
+    <input type="search" class="search form-control mr-sm-2" placeholder="Rechercher">
+    <table class="table">
+        <thead>
+            {% for key, value in columns %}
+            <th>{{ value  }}</th>
+            {% endfor %}
+            {% if table in ['user', 'patient', 'drugstore'] and user.role in [1,2,3,6] %}
+            <th class="col-md-1">
+                <a href="{{ url_for( table + '.update')}}"><button class="btn btn-primary mb-2" >Ajouter</button></a>
+            </th>
+            {% endif %}
+        </thead>
+        <tbody class="list">
+            {% for row in data %}
+            <tr  class="clickable-row" data-href="{{ url_for(table + '.update') }}/{{row.id}}">
+                {% for key, value in columns %}
+                <td class="{{ key }}">{{ row.__dict__[key] }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+  
+    
+{% endblock %}

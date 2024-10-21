@@ -1,0 +1,23 @@
+FROM python:3.12-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpango1.0-dev \
+    libcairo2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt /tmp
+COPY app /app
+COPY entrypoint.sh /
+
+RUN chmod +x /entrypoint.sh && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir -r /tmp/requirements.txt && \
+    groupadd -g 1000 app && \
+    useradd -r -u 1000 -g app app
+
+USER app
+WORKDIR /app
+
+ENTRYPOINT ["/entrypoint.sh"]

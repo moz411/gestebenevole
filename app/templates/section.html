@@ -1,0 +1,75 @@
+<div class="container-fluid">
+    <div class="d-flex justify-content-between">
+        <div class="p-2">
+            <p><h4>{{ title }}</h4></p>
+        </div>
+        <div class="p-2">
+            <p><button class="btn btn-primary" onclick="showForm('{{ popup   }}')">Ajouter</button>
+                {% if print_url %}
+                <button class="btn btn-primary" onclick="window.open('{{ print_url }}')">Imprimer</button>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            {% for header in table_headers %}
+            <th class="col-md-1">{{ header }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            {% for column in table_content %}
+            <td class="col-md-1 {{ column }}">{{ item[column] }}</td>
+            {% endfor %}
+            {% if print_items %}
+            <td class="col-md-1">
+                {% set print_url=url_for('consultation.print_orientation', orientation_id=item.id) %}
+                <button class="btn btn-primary" onclick="window.open('{{ print_url }}')">Imprimer</button>
+            </td>
+            {% endif %}
+            {% if deletable %}
+            <td class="col-md-1">
+                <form action="{{ delete_action }}" method="post">
+                    <input type="number" name="id" value="{{ item.id }}" hidden>
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal-overlay" id="{{ popup }}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter {{ title | lower }}</h5>
+                <button type="button" class="close" onclick="hideForm('{{ popup }}')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ form_action }}" method="post" onsubmit="hideForm('{{ popup }}')">
+                    <input type="number" name="{{ name }}" value="{{ id }}" hidden> 
+                    <input type="text" name="date" id="currentDate" hidden>
+                    <table class="table">
+                        <tbody>
+                            {% for field in form_fields %}
+                            <tr>
+                                <td>{{ field.label }}</td>
+                                <td>{{ field.input | safe }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="submit" class="btn btn-primary">Valider</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,135 @@
+# main.py
+
+from datetime import datetime
+from flask import Blueprint, request, render_template, redirect, url_for, make_response
+from flask_login import login_required, current_user
+from sqlalchemy import desc, sql
+from weasyprint import HTML
+from .models import db
+from . import utils
+
+def create_blueprint_for_model(model_class):
+    blueprint = Blueprint(model_class.__tablename__, __name__)
+
+    @blueprint.route('/create', methods=['POST'])
+    @login_required
+    def create():
+        form_data = utils.convert_form_data(request.form)
+        new_entry = model_class(**form_data)
+        db.session.add(new_entry)
+        db.session.commit()
+        # Remove qty from drugstore stock if update is a prescription.
+        if model_class.__tablename__ == 'prescription' and form_data.get('given'): 
+            text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
+            db.session.execute(text)
+            db.session.commit()
+        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage']:
+            return redirect(request.referrer)
+        else:
+            return redirect(url_for(f"{model_class.__tablename__}.all"))
+        
+    @blueprint.route('/delete', defaults={ 'id': None }, methods=['POST'])
+    @login_required
+    def delete(id):
+        id = request.form.get('id')
+        if id:
+            entry = model_class.query.get(id)
+            db.session.delete(entry)
+            db.session.commit()
+        return redirect(request.referrer)
+        
+    
+    @blueprint.route('/update', defaults={ 'id': None }, methods=['GET','POST'])    
+    @blueprint.route('/update/<id>', methods=['GET','POST'])
+    @login_required
+    def update(id):
+        payload = {'table': model_class.__tablename__,
+                   'data':  model_class.query.get(id) if id else model_class(),
+                   'user': current_user,
+                   'id': id,
+                   'columns': []}
+        # Replace text by Python datetime object.
+        form_data = utils.convert_form_data(request.form)
+
+        # Update the entry if the form is submitted.
+        if id and request.method == 'POST':
+            for key in form_data:
+                if hasattr(payload['data'], key):
+                    setattr(payload['data'], key, form_data[key])
+            db.session.commit()
+            
+            return redirect(url_for(f"{model_class.__tablename__}.all"))
+        # Create a new entry if the form is submitted.
+        elif not id and request.method == 'POST':
+            new_entry = model_class(**form_data)
+            db.session.add(new_entry)
+            db.session.commit()
+            return redirect(url_for(f"{payload['table']}.update") + "/" + repr(new_entry.id))
+        else:
+            # Generate the form fields.
+            payload['rows'] = utils.generate_rows(model_class, payload)
+            if hasattr(payload['data'], 'date'):
+                payload['deletable'] = True if payload['data'].date == datetime.now().date() else False
+            return render_template('entry.html', **payload)
+
+    @blueprint.route('/', methods=['GET'])
+    @login_required
+    def all():
+        if model_class.__tablename__ in ['consultation', 'prescription']:
+            return redirect(url_for(f"patient.all"))
+
+        payload = {'table': model_class.__tablename__, 
+                   'data': model_class.query.order_by(desc(model_class.id)).all(),
+                   'user': current_user,
+                   'datasets': utils.prepare_datasets(model_class), 
+                   'columns': [(col.name, col.info.get('name')) 
+                                for col in model_class.__table__.columns 
+                                if col.info.get('list') == 'visible']}
+        return render_template('entries.html', **payload)
+    
+    # add a route to print prescriptions
+    @blueprint.route('/print/<consultation_id>/prescriptions', methods=['GET'])
+    @login_required
+    def print_prescriptions(consultation_id):
+        text = sql.text(f"""SELECT prescription.qty, drugstore.name, 
+                                   prescription.posology, prescription.notes, 
+                                   prescription.given 
+                            FROM prescription 
+                            JOIN drugstore ON prescription.drugstore = drugstore.id
+                            WHERE consultation = {consultation_id}""")
+
+        results = db.session.execute(text).fetchall()
+        items = []
+        for row in results:
+            prescription = f'''{row[0]} {row[1]}\n{row[2]} {row[3]}'''
+            prescription += '\n (déjà donné)' if row[4] else ''
+            items.append(prescription)
+        rendered = render_template('print.html', items=items)
+        pdf = HTML(string=rendered).write_pdf()
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
+        return response
+    
+    # add a route to print orientation
+    @blueprint.route('/print/orientation/<orientation_id>', methods=['GET'])
+    @login_required
+    def print_orientation(orientation_id):
+        text = sql.text(f"""SELECT specialist.name, orientation.notes
+                            FROM orientation 
+                            JOIN specialist ON orientation.specialist = specialist.id
+                            WHERE orientation.id = {orientation_id}""")
+
+        results = db.session.execute(text).fetchall()
+        items = []
+        for row in results:
+            orientation = f'Orientation : {row[0]}\n\n{row[1]}'
+            items.append(orientation)
+        rendered = render_template('print.html', items=items)
+        pdf = HTML(string=rendered).write_pdf()
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
+        return response
+    
+    return blueprint

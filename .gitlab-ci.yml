@@ -1,0 +1,42 @@
+stages:
+  - tag
+  - build
+
+# Job 1: Tagging de la version
+tag_version:
+  stage: tag
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache git
+  script:
+    - echo "Récupération du dernier tag"
+    - LAST_TAG=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+    - NEW_TAG=$(echo $LAST_TAG | awk -F. '{printf "%s.%d.%d", $1,$2,$3+1}')
+    - git config --global user.email "cd@moz42.gitlab.com"
+    - git config --global user.name "CD Pipeline"
+    - git tag $NEW_TAG
+    - git remote set-url origin https://gitlab-ci-token:${CD_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git
+    - git push --tags
+    - echo "NEW_TAG=$NEW_TAG" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+  only:
+    - main
+
+# Job 2: Build de l'image Docker
+build_container:
+  stage: build
+  needs: [tag_version]
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo "Building Docker image..."
+    - docker build -t registry.gitlab.com/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$NEW_TAG .
+    - echo "$CD_TOKEN" | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
+    - echo "Pushing Docker image to registry..."
+    - docker push registry.gitlab.com/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$NEW_TAG
+  only:
+    - main
+
