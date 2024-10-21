@@ -6,8 +6,10 @@ set -e
 DATA_DIR=/data
 DB_FILE=${DATA_DIR}/gestebenevole.sqlite
 
+cd /
+
 if [ ! -f "$DB_FILE" ]; then
-python -c "from . import app, db; app.create_app()"
+python -c "from app import app, db; app.create_app()"
 for file in $DATA_DIR/*.csv
 do
 echo "Import $file..."
