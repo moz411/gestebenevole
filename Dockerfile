@@ -15,7 +15,9 @@ RUN chmod +x /entrypoint.sh && \
     pip install --upgrade pip && \
     pip install --no-cache-dir -r /tmp/requirements.txt && \
     groupadd -g 1000 app && \
-    useradd -r -u 1000 -g app app
+    useradd -r -u 1000 -g app app && \
+    mkdir /data && \
+    chown -R app:app /data
 
 USER app
 WORKDIR /app
