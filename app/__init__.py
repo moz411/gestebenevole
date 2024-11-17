@@ -15,15 +15,15 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['PERMANENT_SESSION_LIFETIME'] = 60
     db.init_app(app)
-    with app.app_context():
-        db.create_all()
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
-    from .models import User, Patient, Consultation, Drugstore, Prescription, Orientation, Residency, Coverage
-    from .main import create_blueprint_for_model
+    with app.app_context():
+        from .models import User, Patient, Consultation, Drugstore, Prescription, Orientation, Residency, Coverage
+        from .main import create_blueprint_for_model
+        db.create_all()
 
     @login_manager.user_loader
     def load_user(user_id):
