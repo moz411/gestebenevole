@@ -55,15 +55,19 @@ fiche patient :
 - ~~bug quantité prescriptions~~
 - ~~supprimer entrées pour date en cours~~
 - ~~orientation -> notes en bloc de texte~~
-- orientation -> orientation1, orientation2, orientation3
+- ~~orientation -> orientation1, orientation2, orientation3~~
 - ajouter "Autre" dans la liste des médicaments
 - ~~supprimer prix liste médicaments~~
 
 05/10/2024
 - table Assistance Sociale ?
-- renommer applications gestebenevole
+- ~~renommer applications gestebenevole~~
 - ~~corriger impression Orientation~~
-- envoyer par mail les identifiants
+- ~~envoyer par mail les identifiants~~
 - ~~reformatter l'impression des prescriptions~~
 - theme par environnement (dev, prod, pre-prod)
-- descendre en bas de page après formulaires
+- ~~descendre en bas de page après formulaires~~
+
+16/11/2024
+- ~~ATCD + vaccination visible uniquement par médecins~~
+- ~~Liste des consultations visibles pour les accueillants~~

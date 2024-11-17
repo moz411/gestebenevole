@@ -22,5 +22,6 @@ RUN chmod +x /entrypoint.sh && \
 
 USER app
 WORKDIR /app
+EXPOSE 8080
 
 ENTRYPOINT ["/entrypoint.sh"]
