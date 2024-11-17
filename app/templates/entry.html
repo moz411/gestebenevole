@@ -129,51 +129,6 @@
     </tbody>
 </table>
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between">
-        <div class="p-2">
-            <p>
-            <h4>Assistance sociale</h4>
-            </p>
-        </div>
-        {% if user.role in [4] %}
-        <div class="p-2">
-            <p>
-            <form method="post" action="{{ url_for('appointment.update')  }}">
-                <input type="number" name="patient" value="{{ id }}" hidden>
-                <input type="number" name="healer" value="{{ user.id }}" hidden>
-                <input type="text" name="date" id="currentDate" hidden>
-                <input type="text" name="motive" hidden>
-                <input type="text" name="notes" hidden>
-                <input type="submit" class="btn btn-primary mb-2" value="Ajouter">
-            </form>
-            </p>
-        </div>
-        {% endif %}
-    </div>
-</div>
-<table class="table">
-    <thead>
-        <tr>
-            <th class="col-md-1">Date</th>
-            <th>Assistant.e</th>
-            <th>Motif</th>
-        </tr>
-    <tbody>
-        {% for appointment in appointments %}
-        {% if user.role in [4] %}
-        <tr class="clickable-row" data-href="{{ url_for('appointment.update') }}/{{appointment.id}}">
-        {% else %}
-        <tr>
-        {% endif %}
-            <td class="col-md-1 date">{{ appointment.date }}</td>
-            <td class="user">{{ appointment.healer }}</td>
-            <td>{{ appointment.motive }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
 {% endif %}
 
 {% if table == 'consultation' and id %}

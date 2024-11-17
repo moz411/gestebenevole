@@ -30,8 +30,7 @@ def create_blueprint_for_model(model_class):
             text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
             db.session.execute(text)
             db.session.commit()
-            
-        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment']:
+        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage']:
             return redirect(request.referrer + '#bottom')
         else:
             return redirect(url_for(f"{model_class.__tablename__}.all"))
