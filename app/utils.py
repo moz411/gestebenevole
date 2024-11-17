@@ -96,6 +96,8 @@ def generate_rows(model_class, payload):
         required = "required" if col.nullable == False else ""
         if col.name == 'id' or (col.name in ["history", "vaccination"] and current_user.id not in [1,6]):
             continue
+        elif col.name in ["history", "vaccination"] and current_user.role not in [1,6]:
+            continue
         elif str(col.type) == 'INTEGER':
             if model_class.__tablename__ == 'drugstore':
                 rows.append((col.info.get('name'), f'<input type="number" name="{col.name}" value="{value or 0}" {required} class="col-md-12"></input>')) 
