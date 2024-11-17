@@ -94,7 +94,7 @@ def generate_rows(model_class, payload):
     for col in model_class.__table__.columns:
         value = getattr(data, col.name)
         required = "required" if col.nullable == False else ""
-        if col.name == 'id':
+        if col.name == 'id' or (col.name in ["history", "vaccination"] and current_user.id not in [1,6]):
             continue
         elif col.name in ["history", "vaccination"] and current_user.role not in [1,6]:
             continue
