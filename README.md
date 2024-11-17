@@ -66,8 +66,8 @@ fiche patient :
 - ~~envoyer par mail les identifiants~~
 - ~~reformatter l'impression des prescriptions~~
 - theme par environnement (dev, prod, pre-prod)
-- descendre en bas de page après formulaires
+- ~~descendre en bas de page après formulaires~~
 
 16/11/2024
 - ATCD + vaccination visible uniquement par médecins
-- Liste des consultations visibles pour les accueillants
+- ~~Liste des consultations visibles pour les accueillants~~
