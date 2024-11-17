@@ -69,6 +69,7 @@ fiche patient :
 - ~~descendre en bas de page après formulaires~~
 
 16/11/2024
+<<<<<<< HEAD
 - ~~ATCD + vaccination visible uniquement par médecins~~
 - ~~Liste des consultations visibles pour les accueillants~~
 
@@ -87,3 +88,7 @@ fiche patient :
 - ~~Créer des pages consultations pour les Assistantes Sociales~~ avec :
   - La date qui doit apparaître sur la partie acceuillant.es
   - Le motif qui doit apparaître sur la partie accueillant.es (met si confidentiel l’AS mettra dans la partie note)
+=======
+- ATCD + vaccination visible uniquement par médecins
+- ~~Liste des consultations visibles pour les accueillants~~
+>>>>>>> f8a7869 (ATCD + vaccination visible uniquement par médecins)
