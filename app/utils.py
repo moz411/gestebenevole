@@ -79,6 +79,7 @@ def generate_rows(model_class, payload):
     before = date.today() - relativedelta(years=100)
     if id and model_class.__tablename__ == 'patient':
         payload['consultations'] = retreive('consultation', 'patient', id)
+        payload['appointments'] = retreive('appointment', 'patient', id)
         payload['residencies'] = retreive('residency', 'patient', id)
         payload['coverages'] = retreive('coverage', 'patient', id)
         payload['datasets'] = prepare_datasets(['user', 'city', 'accommodation'])

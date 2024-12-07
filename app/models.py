@@ -55,7 +55,7 @@ class Appointment(db.Model):
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False,  info={'name': 'Date'})
     patient = Column(Integer, ForeignKey('patient.id'), nullable=False, info={'name': 'Patient', 'list': 'visible'})
-    healer = Column(Integer,ForeignKey('user.id'), nullable=False, info={'name': 'Assistant.e social.e', 'list': 'visible'})
+    healer = Column(Integer,ForeignKey('user.id'), nullable=False, info={'name': 'Assistant.e', 'list': 'visible'})
     motive = Column(String, nullable=False, info={'name': 'Motif'})
     notes = Column(Text, info={'name': 'Notes'})
 

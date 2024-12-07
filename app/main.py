@@ -23,7 +23,7 @@ def create_blueprint_for_model(model_class):
             text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
             db.session.execute(text)
             db.session.commit()
-        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage']:
+        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment']:
             return redirect(request.referrer + '#bottom')
         else:
             return redirect(url_for(f"{model_class.__tablename__}.all"))
@@ -75,7 +75,7 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/', methods=['GET'])
     @login_required
     def all():
-        if model_class.__tablename__ in ['consultation', 'prescription']:
+        if model_class.__tablename__ in ['consultation', 'prescription', 'appointment']:
             return redirect(url_for(f"patient.all"))
 
         payload = {'table': model_class.__tablename__, 
