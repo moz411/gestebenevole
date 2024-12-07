@@ -36,7 +36,7 @@ def create_blueprint_for_model(model_class):
             entry = model_class.query.get(id)
             db.session.delete(entry)
             db.session.commit()
-        return redirect(request.referrer)
+        return redirect(request.referrer + '#bottom')
         
     
     @blueprint.route('/update', defaults={ 'id': None }, methods=['GET','POST'])    
@@ -91,7 +91,7 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/print/<consultation_id>/prescriptions', methods=['GET'])
     @login_required
     def print_prescriptions(consultation_id):
-        text = sql.text(f"""SELECT prescription.qty, drugstore.name, 
+        text = sql.text(f"""SELECT drugstore.name, 
                                    prescription.posology, prescription.notes, 
                                    prescription.given 
                             FROM prescription 
@@ -101,8 +101,8 @@ def create_blueprint_for_model(model_class):
         results = db.session.execute(text).fetchall()
         items = []
         for row in results:
-            prescription = f'''{row[0]} {row[1]}\n{row[2]} {row[3]}'''
-            prescription += '\n (déjà donné)' if row[4] else ''
+            prescription = f'''{row[0]}\n{row[1]} {row[2]}'''
+            prescription += '\n (REMIS)' if row[3] else ''
             items.append(prescription)
         rendered = render_template('print.html', items=items)
         pdf = HTML(string=rendered).write_pdf()

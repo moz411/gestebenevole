@@ -6,7 +6,7 @@
     {% elif id and table in ['user', 'drugstore'] %}
     <form method="post" action="{{ url_for( table + '.update')  }}/{{ id }}">
     {% else %}
-    <form method="post" action="{{ url_for( table + '.create')  }}">
+    <form method="post" action="{{ url_for( table + '.create') }}">
         {% endif %}
         <table class="table">
             <tbody>
@@ -59,6 +59,8 @@
 {% set table_content=["date", "city", "accommodation", "address", "notes"] %}
 {% set items=residencies %}
 {% set form_action=url_for('residency.create') %}
+{% set delete_action=url_for('residency.delete') %}
+{% set deletable=true %}
 {% set name="patient" %}
 {% set form_fields=[{"label": "Ville", "input": cities | safe}, {"label": "Nature Hébergement", "input": accommodations
 | safe}, {"label": "Adresse", "input": '<input type="text" name="address" class="col-md-12">'}, {"label": "Notes", "input": '<input
@@ -71,10 +73,12 @@
 {% set table_content=["date", "current", "notes"] %}
 {% set items=coverages %}
 {% set form_action=url_for('coverage.create') %}
+{% set delete_action=url_for('coverage.delete') %}
+{% set deletable=true %}
 {% set name="patient" %}
 {% set form_fields=[
-    {"label": "Couverture", "input": '<select name="current" class="col-md-12" required>
-    <option disabled selected required value="default">Sélectionner</option>
+    {"label": "Couverture", "input": '<select name="current" class="col-md-12">
+    <option disabled selected value="default">Sélectionner</option>
     <option value="oui">Oui</option>
     <option value="non">Non</option>
     <option value="inprogress">En cours</option></select>'}, 
@@ -140,9 +144,9 @@
 {% set delete_action=url_for('prescription.delete') %}
 {% set name="consultation" %}
 {% set form_fields=[{"label": "Médicament", "input": drugstore | safe}, 
-                    {"label": "Quantité", "input": '<input type="number" name="qty" min="1" max="100" required>'},
-                    {"label": "Posologie", "input": '<input type="text" name="posology" class="col-md-12">'},
+                    {"label": "Quantité", "input": '<input type="number" name="qty" min="1" max="100">'},
                     {"label": "Notes", "input": '<input type="text" name="notes" class="col-md-12">'},
+                    {"label": "Posologie", "input": '<input type="text" name="posology" class="col-md-12">'},
                     {"label": "Remis", "input": '<input type="checkbox" name="given">'}] %}
 {% include 'section.html' %}
 
@@ -157,7 +161,7 @@
 {% set delete_action=url_for('orientation.delete') %}
 {% set name="consultation" %}
 {% set form_fields=[{"label": "Spécialiste", "input": specialists | safe}, 
-{"label": "Notes", "input": '<textarea rows="4" name="notes" required class="col-md-12"></textarea>'}] %}
+{"label": "Notes", "input": '<textarea rows="4" name="notes" class="col-md-12"></textarea>'}] %}
 {% include 'section.html' %}
 {% endif %}
 
