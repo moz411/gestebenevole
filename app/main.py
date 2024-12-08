@@ -102,15 +102,19 @@ def create_blueprint_for_model(model_class):
 
         results = db.session.execute(text).fetchall()
         items = []
+        import locale
+        locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
         today = datetime.now().strftime('%d %b %Y')
 
         for row in results:
-            patient = f"""{row[0]} {row[1]}\nNé.e le {row[2]}"""
+            patient = f"{row[0]} {row[1]}"
+            birth = f"Né(e) le {row[2]}"
             drug = row[3] if row[3] != 'Autre' else ''
             prescription = f'''{drug}\n{row[4]} {row[5]}'''
             prescription += '\n (REMIS)' if row[6] else ''
             items.append(prescription)
-        rendered = render_template('print.html', items=items, today=today, patient=patient)
+        rendered = render_template('print.html', items=items, 
+                                    today=today, patient=patient, birth=birth)
         pdf = HTML(string=rendered).write_pdf()
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'
