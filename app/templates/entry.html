@@ -180,8 +180,8 @@
 {% set title="Prescription médicaments" %}
 {% set popup="prescription" %}
 {% set print_url=url_for('consultation.print_prescriptions', consultation_id=id) %}
-{% set table_headers=["Date", "Médicament", "Quantité", "Posologie", "Notes", "Remis"] %}
-{% set table_content=["date", "drugstore", "qty", "posology", "notes", "given"] %}
+{% set table_headers=["Date", "Médicament", "Quantité", "Notes", "Posologie", "Remis"] %}
+{% set table_content=["date", "drugstore", "qty", "notes", "posology", "given"] %}
 {% set items=prescriptions %}
 {% set form_action=url_for('prescription.create') %}
 {% set delete_action=url_for('prescription.delete') %}

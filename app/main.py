@@ -91,20 +91,26 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/print/<consultation_id>/prescriptions', methods=['GET'])
     @login_required
     def print_prescriptions(consultation_id):
-        text = sql.text(f"""SELECT drugstore.name, 
-                                   prescription.posology, prescription.notes, 
-                                   prescription.given 
+        text = sql.text(f"""SELECT patient.firstname, patient.lastname, patient.birth,
+                                   drugstore.name, 
+                                   prescription.notes, prescription.posology, prescription.given 
                             FROM prescription 
-                            JOIN drugstore ON prescription.drugstore = drugstore.id
+                            JOIN drugstore ON prescription.drugstore = drugstore.id,
+                            consultation ON consultation.id = {consultation_id},
+                            patient ON patient.id = consultation.patient
                             WHERE consultation = {consultation_id}""")
 
         results = db.session.execute(text).fetchall()
         items = []
+        today = datetime.now().strftime('%d %b %Y')
+
         for row in results:
-            prescription = f'''{row[0]}\n{row[1]} {row[2]}'''
-            prescription += '\n (REMIS)' if row[3] else ''
+            patient = f"""{row[0]} {row[1]}\nNé.e le {row[2]}"""
+            drug = row[3] if row[3] != 'Autre' else ''
+            prescription = f'''{drug}\n{row[4]} {row[5]}'''
+            prescription += '\n (REMIS)' if row[6] else ''
             items.append(prescription)
-        rendered = render_template('print.html', items=items)
+        rendered = render_template('print.html', items=items, today=today, patient=patient)
         pdf = HTML(string=rendered).write_pdf()
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'

@@ -2,11 +2,13 @@ FROM python:3.12-slim
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+    locales \
     sqlite3 \
     build-essential \
     libpango1.0-dev \
     libcairo2-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && locale-gen
 
 COPY requirements.txt /tmp
 COPY app /app
@@ -23,5 +25,8 @@ RUN chmod +x /entrypoint.sh && \
 USER app
 WORKDIR /app
 EXPOSE 8080
+ENV LANG=fr_FR.UTF-8 \
+    LANGUAGE=fr_FR:fr \
+    LC_ALL=fr_FR.UTF-8
 
 ENTRYPOINT ["/entrypoint.sh"]
