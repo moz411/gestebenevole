@@ -7,6 +7,10 @@ from sqlalchemy import desc, sql
 from weasyprint import HTML
 from .models import db
 from . import utils
+import locale
+
+locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+today = datetime.now().strftime('%d %b %Y')
 
 def create_blueprint_for_model(model_class):
     blueprint = Blueprint(model_class.__tablename__, __name__)
@@ -23,7 +27,8 @@ def create_blueprint_for_model(model_class):
             text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
             db.session.execute(text)
             db.session.commit()
-        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage']:
+            
+        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment']:
             return redirect(request.referrer + '#bottom')
         else:
             return redirect(url_for(f"{model_class.__tablename__}.all"))
@@ -36,7 +41,7 @@ def create_blueprint_for_model(model_class):
             entry = model_class.query.get(id)
             db.session.delete(entry)
             db.session.commit()
-        return redirect(request.referrer)
+        return redirect(request.referrer + '#bottom')
         
     
     @blueprint.route('/update', defaults={ 'id': None }, methods=['GET','POST'])    
@@ -46,6 +51,8 @@ def create_blueprint_for_model(model_class):
         payload = {'table': model_class.__tablename__,
                    'data':  model_class.query.get(id) if id else model_class(),
                    'user': current_user,
+                   'deletable': False,
+                   'today': False,
                    'id': id,
                    'columns': []}
         # Replace text by Python datetime object.
@@ -68,14 +75,15 @@ def create_blueprint_for_model(model_class):
         else:
             # Generate the form fields.
             payload['rows'] = utils.generate_rows(model_class, payload)
-            if hasattr(payload['data'], 'date'):
-                payload['deletable'] = True if payload['data'].date == datetime.now().date() else False
+            if hasattr(payload['data'], 'date') and payload['data'].date == datetime.now().date():
+                payload['deletable'] = True
+                payload['today'] = True
             return render_template('entry.html', **payload)
 
     @blueprint.route('/', methods=['GET'])
     @login_required
     def all():
-        if model_class.__tablename__ in ['consultation', 'prescription']:
+        if model_class.__tablename__ in ['consultation', 'prescription', 'appointment']:
             return redirect(url_for(f"patient.all"))
 
         payload = {'table': model_class.__tablename__, 
@@ -91,20 +99,27 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/print/<consultation_id>/prescriptions', methods=['GET'])
     @login_required
     def print_prescriptions(consultation_id):
-        text = sql.text(f"""SELECT prescription.qty, drugstore.name, 
-                                   prescription.posology, prescription.notes, 
-                                   prescription.given 
+        text = sql.text(f"""SELECT patient.firstname, patient.lastname, patient.birth,
+                                   drugstore.name, 
+                                   prescription.notes, prescription.posology, prescription.given 
                             FROM prescription 
-                            JOIN drugstore ON prescription.drugstore = drugstore.id
+                            JOIN drugstore ON prescription.drugstore = drugstore.id,
+                            consultation ON consultation.id = {consultation_id},
+                            patient ON patient.id = consultation.patient
                             WHERE consultation = {consultation_id}""")
 
         results = db.session.execute(text).fetchall()
         items = []
+
         for row in results:
-            prescription = f'''{row[0]} {row[1]}\n{row[2]} {row[3]}'''
-            prescription += '\n (déjà donné)' if row[4] else ''
+            patient = f"{row[0]} {row[1]}"
+            birth = f"Né(e) le {row[2]}"
+            drug = row[3] if row[3] != 'Autre' else ''
+            prescription = f'''{drug}\n{row[4]} {row[5]}'''
+            prescription += '\n (REMIS)' if row[6] else ''
             items.append(prescription)
-        rendered = render_template('print.html', items=items)
+        rendered = render_template('print.html', items=items, 
+                                    today=today, patient=patient, birth=birth)
         pdf = HTML(string=rendered).write_pdf()
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'
@@ -115,17 +130,23 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/print/orientation/<orientation_id>', methods=['GET'])
     @login_required
     def print_orientation(orientation_id):
-        text = sql.text(f"""SELECT specialist.name, orientation.notes
+        text = sql.text(f"""SELECT patient.firstname, patient.lastname, patient.birth,
+                                   specialist.name, orientation.notes
                             FROM orientation 
-                            JOIN specialist ON orientation.specialist = specialist.id
+                            JOIN specialist ON orientation.specialist = specialist.id,
+                            consultation ON consultation.id = orientation.consultation,
+                            patient ON patient.id = consultation.patient
                             WHERE orientation.id = {orientation_id}""")
 
         results = db.session.execute(text).fetchall()
         items = []
         for row in results:
-            orientation = f'Orientation : {row[0]}\n\n{row[1]}'
+            patient = f"{row[0]} {row[1]}"
+            birth = f"Né(e) le {row[2]}"
+            orientation = f'Orientation : {row[3]}\n\n{row[4]}'
             items.append(orientation)
-        rendered = render_template('print.html', items=items)
+        rendered = render_template('print.html', items=items, 
+                                    today=today, patient=patient, birth=birth)
         pdf = HTML(string=rendered).write_pdf()
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'

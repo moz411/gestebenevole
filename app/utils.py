@@ -50,8 +50,9 @@ def convert_form_data(form_data):
 def append_select(col, rows, foreign_id):
     text = sql.text(f"SELECT id, name FROM {col.name}")
     results = db.session.execute(text)
-    select = f'''<select name="{col.name}" class="col-md-12" required>
-                <option disabled selected required>Sélectionner</option>'''
+    required = "required" if col.nullable == False else ""
+    select = f'''<select name="{col.name}" class="col-md-12" {required}>
+                <option disabled selected>Sélectionner</option>'''
     for res in results:
         select += f'<option value={ res[0] }>{ res[1] }</option>'
         if res[0] == foreign_id:
@@ -63,8 +64,8 @@ def append_select(col, rows, foreign_id):
 def append_select_2(col):
     text = sql.text(f"SELECT id, name FROM {col} ORDER BY name") 
     results = db.session.execute(text)
-    select = f'''<select name="{col}" class="col-md-12" required>
-                <option disabled selected required value="default">Sélectionner</option>'''
+    select = f'''<select name="{col}" class="col-md-12">
+                <option selected value="default">Sélectionner</option>'''
     for res in results:
         select += f'<option value={ res[0] }>{ res[1] }</option>'
     select += '</select>'
@@ -78,6 +79,7 @@ def generate_rows(model_class, payload):
     before = date.today() - relativedelta(years=100)
     if id and model_class.__tablename__ == 'patient':
         payload['consultations'] = retreive('consultation', 'patient', id)
+        payload['appointments'] = retreive('appointment', 'patient', id)
         payload['residencies'] = retreive('residency', 'patient', id)
         payload['coverages'] = retreive('coverage', 'patient', id)
         payload['datasets'] = prepare_datasets(['user', 'city', 'accommodation'])
@@ -93,8 +95,6 @@ def generate_rows(model_class, payload):
         value = getattr(data, col.name)
         required = "required" if col.nullable == False else ""
         if col.name == 'id' or (col.name in ["history", "vaccination"] and current_user.id not in [1,6]):
-            continue
-        elif col.name in ["history", "vaccination"] and current_user.role not in [1,6]:
             continue
         elif str(col.type) == 'INTEGER':
             if model_class.__tablename__ == 'drugstore':
@@ -127,8 +127,8 @@ def generate_rows(model_class, payload):
         elif str(col.type) == 'VARCHAR':
             value = value if value else ""
             if col.name in ['gender']:
-                rows.append((col.info.get('name'), f'''<select name="{col.name}" class="col-md-1" required>
-                             <option disabled selected required>Sélectionner</option>
+                rows.append((col.info.get('name'), f'''<select name="{col.name}" class="col-md-1">
+                             <option disabled selected>Sélectionner</option>
                              <option value="M" { "selected" if value == "M" else "" }>Masculin</option>
                              <option value="F" { "selected" if value == "F" else "" }>Féminin</option>
                              <option value="A" { "selected" if value == "A" else "" }>Autre</option></select>'''))

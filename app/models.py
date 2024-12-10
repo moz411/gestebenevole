@@ -11,7 +11,6 @@ class User(UserMixin, db.Model):
     name = Column(String, nullable=False, info={'name': 'Nom', 'list': 'visible'})
     email = Column(String, nullable=False, info={'name': 'Email', 'list': 'visible'})
     password = Column(String, nullable=False, info={'name': 'Mot de passe'})
-    phone = Column(String, info={'name': 'Téléphone', 'list': 'visible'})
     role = Column(Integer, ForeignKey('role.id'), nullable=False, info={'name': 'Rôle', 'list': 'visible'})
 
 class Patient(db.Model):
@@ -36,8 +35,8 @@ class Residency(db.Model):
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False,  info={'name': 'Date'})
     patient = Column(Integer, ForeignKey('patient.id'), nullable=False, info={'name': 'Patient', 'list': 'visible'})
-    city = Column(Integer, ForeignKey('city.id'), nullable=False, info={'name': 'Ville', 'list': 'visible'})
-    accommodation = Column(Integer, ForeignKey('accommodation.id'), nullable=False, info={'name': 'Nature hébergement', 'list': 'visible'})
+    city = Column(Integer, ForeignKey('city.id'), info={'name': 'Ville', 'list': 'visible'})
+    accommodation = Column(Integer, ForeignKey('accommodation.id'), info={'name': 'Nature hébergement', 'list': 'visible'})
     address = Column(String, info={'name': 'Adresse', 'list': 'visible'})
     notes = Column(Text, info={'name': 'Notes', 'list': 'visible'})
 
@@ -50,13 +49,22 @@ class Consultation(db.Model):
     motive = Column(String, nullable=False, info={'name': 'Motif'})
     notes = Column(Text, info={'name': 'Notes'})
 
+class Appointment(db.Model):
+    __tablename__ = 'appointment'
+    id = Column(Integer, primary_key=True)
+    date = Column(Date, nullable=False,  info={'name': 'Date'})
+    patient = Column(Integer, ForeignKey('patient.id'), nullable=False, info={'name': 'Patient', 'list': 'visible'})
+    healer = Column(Integer,ForeignKey('user.id'), nullable=False, info={'name': 'Assistant.e', 'list': 'visible'})
+    motive = Column(String, nullable=False, info={'name': 'Motif'})
+    notes = Column(Text, info={'name': 'Notes'})
+
 class Prescription(db.Model):
     __tablename__ = 'prescription'
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False, info={'name': 'Date'})
     consultation = Column(Integer, ForeignKey('consultation.id'), nullable=False, info={'name': 'Consultation'})
-    drugstore = Column(Integer, ForeignKey('drugstore.id'), info={'name': 'Médicament'})
-    qty = Column(Integer, nullable=False, info={'name': 'Quantité'})
+    drugstore = Column(Integer, ForeignKey('drugstore.id'),  nullable=False, info={'name': 'Médicament'})
+    qty = Column(Integer, nullable=False, info={'name': "Nombre d'unités"})
     posology = Column(Text, info={'name': 'Posologie'})
     notes = Column(Text, info={'name': 'Notes'})
     given = Column(Boolean, info={'name': 'Remis'})
@@ -74,8 +82,8 @@ class Coverage(db.Model):
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False, info={'name': 'Date', 'list': 'visible'})
     patient = Column(Integer, ForeignKey('patient.id'), nullable=False, info={'name': 'Patient', 'list': 'visible'})
-    current = Column(String, nullable=False, info={'name': 'Droits sociaux', 'list': 'visible'})
-    notes = Column(String, nullable=False, info={'name': 'Notes', 'list': 'visible'})
+    current = Column(String, info={'name': 'Droits sociaux', 'list': 'visible'})
+    notes = Column(String, info={'name': 'Notes', 'list': 'visible'})
 
 class Role(db.Model):
     __tablename__ = 'role'

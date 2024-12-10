@@ -71,3 +71,19 @@ fiche patient :
 16/11/2024
 - ~~ATCD + vaccination visible uniquement par médecins~~
 - ~~Liste des consultations visibles pour les accueillants~~
+
+07/12/2024
+- ~~Ajouter en haut et à droite de l’ordonnance sous l’entête :~~
+  - ~~ALa date de la consultation~~A
+  - ~~ALes coordonnées du patient : Prénom, Nom, Date de naissance~~
+- ~~Pour les médicaments, remplacer le terme « déjà donné » par le terme « REMIS »~~
+- Remplacer « Quantité » par « Nombre d’unité »
+- ~~A l’impression, ne pas faire apparaître ce « nombre d’unité »~~
+- ~~Désactiver « DRUGSTORE »~~A
+- ~~Sur la liste des médicaments, en tête de liste une ligne vierge à activer pour les médicaments ne figurant pas dans la liste~~
+- ~~Inverser les champs : « posologie » et « note »~~A
+- ~~Le champ « Note » permettant d’inscrire le nom du médicament et devra s’imprimer sur l’ordonnance avant le champ « posologie »~~
+- Penser à faire une note expliquant aux médecins la procédure pour les médicaments ne figurant pas dans la liste
+- ~~Créer des pages consultations pour les Assistantes Sociales~~ avec :
+  - La date qui doit apparaître sur la partie acceuillant.es
+  - Le motif qui doit apparaître sur la partie accueillant.es (met si confidentiel l’AS mettra dans la partie note)

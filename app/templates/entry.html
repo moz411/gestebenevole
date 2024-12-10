@@ -3,10 +3,10 @@
 
     {% if id and table in [ 'patient', 'consultation'] %}
     <form id="dynamicForm">
-    {% elif id and table in ['user', 'drugstore'] %}
+    {% elif id and table in ['user', 'drugstore', 'appointment'] %}
     <form method="post" action="{{ url_for( table + '.update')  }}/{{ id }}">
     {% else %}
-    <form method="post" action="{{ url_for( table + '.create')  }}">
+    <form method="post" action="{{ url_for( table + '.create') }}">
         {% endif %}
         <table class="table">
             <tbody>
@@ -25,7 +25,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        {% if user.role in [1,2,3,6] and ((table in ['user', 'drugstore']) or (not id and table in ['patient'])) %}
+        {% if (table in ['user', 'drugstore', 'appointment']) or (not id and table in ['patient']) %}
         <div class="d-flex justify-content-center">
             <input type="submit" class="btn btn-primary mb-2" value="Soumettre">
         </div>
@@ -59,6 +59,7 @@
 {% set table_content=["date", "city", "accommodation", "address", "notes"] %}
 {% set items=residencies %}
 {% set form_action=url_for('residency.create') %}
+{% set delete_action=url_for('residency.delete') %}
 {% set name="patient" %}
 {% set form_fields=[{"label": "Ville", "input": cities | safe}, {"label": "Nature Hébergement", "input": accommodations
 | safe}, {"label": "Adresse", "input": '<input type="text" name="address" class="col-md-12">'}, {"label": "Notes", "input": '<input
@@ -71,10 +72,11 @@
 {% set table_content=["date", "current", "notes"] %}
 {% set items=coverages %}
 {% set form_action=url_for('coverage.create') %}
+{% set delete_action=url_for('coverage.delete') %}
 {% set name="patient" %}
 {% set form_fields=[
-    {"label": "Couverture", "input": '<select name="current" class="col-md-12" required>
-    <option disabled selected required value="default">Sélectionner</option>
+    {"label": "Couverture", "input": '<select name="current" class="col-md-12">
+    <option disabled selected value="default">Sélectionner</option>
     <option value="oui">Oui</option>
     <option value="non">Non</option>
     <option value="inprogress">En cours</option></select>'}, 
@@ -127,22 +129,67 @@
     </tbody>
 </table>
 
+<div class="container-fluid">
+    <div class="d-flex justify-content-between">
+        <div class="p-2">
+            <p>
+            <h4>Assistance sociale</h4>
+            </p>
+        </div>
+        {% if user.role in [4] %}
+        <div class="p-2">
+            <p>
+            <form method="post" action="{{ url_for('appointment.update')  }}">
+                <input type="number" name="patient" value="{{ id }}" hidden>
+                <input type="number" name="healer" value="{{ user.id }}" hidden>
+                <input type="text" name="date" id="currentDate" hidden>
+                <input type="text" name="motive" hidden>
+                <input type="text" name="notes" hidden>
+                <input type="submit" class="btn btn-primary mb-2" value="Ajouter">
+            </form>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-md-1">Date</th>
+            <th>Assistant.e</th>
+            <th>Motif</th>
+        </tr>
+    <tbody>
+        {% for appointment in appointments %}
+        {% if user.role in [4] %}
+        <tr class="clickable-row" data-href="{{ url_for('appointment.update') }}/{{appointment.id}}">
+        {% else %}
+        <tr>
+        {% endif %}
+            <td class="col-md-1 date">{{ appointment.date }}</td>
+            <td class="user">{{ appointment.healer }}</td>
+            <td>{{ appointment.motive }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endif %}
 
 {% if table == 'consultation' and id %}
 {% set title="Prescription médicaments" %}
 {% set popup="prescription" %}
 {% set print_url=url_for('consultation.print_prescriptions', consultation_id=id) %}
-{% set table_headers=["Date", "Médicament", "Quantité", "Posologie", "Notes", "Remis"] %}
-{% set table_content=["date", "drugstore", "qty", "posology", "notes", "given"] %}
+{% set table_headers=["Date", "Médicament", "Nombre d'unités", "Notes", "Posologie", "Remis"] %}
+{% set table_content=["date", "drugstore", "qty", "notes", "posology", "given"] %}
 {% set items=prescriptions %}
 {% set form_action=url_for('prescription.create') %}
 {% set delete_action=url_for('prescription.delete') %}
 {% set name="consultation" %}
 {% set form_fields=[{"label": "Médicament", "input": drugstore | safe}, 
-                    {"label": "Quantité", "input": '<input type="number" name="qty" min="1" max="100" required>'},
-                    {"label": "Posologie", "input": '<input type="text" name="posology" class="col-md-12">'},
+                    {"label": "Nombre d'unités", "input": '<input type="number" name="qty" min="1" max="100" required>'},
                     {"label": "Notes", "input": '<input type="text" name="notes" class="col-md-12">'},
+                    {"label": "Posologie", "input": '<input type="text" name="posology" class="col-md-12">'},
                     {"label": "Remis", "input": '<input type="checkbox" name="given">'}] %}
 {% include 'section.html' %}
 
@@ -157,7 +204,7 @@
 {% set delete_action=url_for('orientation.delete') %}
 {% set name="consultation" %}
 {% set form_fields=[{"label": "Spécialiste", "input": specialists | safe}, 
-{"label": "Notes", "input": '<textarea rows="4" name="notes" required class="col-md-12"></textarea>'}] %}
+{"label": "Notes", "input": '<textarea rows="4" name="notes" class="col-md-12"></textarea>'}] %}
 {% include 'section.html' %}
 {% endif %}
 

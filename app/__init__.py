@@ -21,7 +21,8 @@ def create_app():
     login_manager.init_app(app)
 
     with app.app_context():
-        from .models import User, Patient, Consultation, Drugstore, Prescription, Orientation, Residency, Coverage
+        from .models import User, Patient, Consultation, Appointment, Drugstore, Prescription, Orientation, Residency, Coverage
+
         from .main import create_blueprint_for_model
         db.create_all()
 
@@ -35,6 +36,7 @@ def create_app():
     user_blueprint = create_blueprint_for_model(User)
     patient_blueprint = create_blueprint_for_model(Patient)
     consultation_blueprint = create_blueprint_for_model(Consultation)
+    appointment_blueprint = create_blueprint_for_model(Appointment)
     drugstore_blueprint = create_blueprint_for_model(Drugstore)
     prescription_blueprint = create_blueprint_for_model(Prescription)
     orientation_blueprint = create_blueprint_for_model(Orientation)
@@ -45,6 +47,7 @@ def create_app():
     app.register_blueprint(user_blueprint, url_prefix='/utilisateurs')
     app.register_blueprint(patient_blueprint, url_prefix='/patients')
     app.register_blueprint(consultation_blueprint, url_prefix='/consultations')
+    app.register_blueprint(appointment_blueprint, url_prefix='/appointments')
     app.register_blueprint(drugstore_blueprint, url_prefix='/pharmacie')
     app.register_blueprint(prescription_blueprint, url_prefix='/prescriptions')
     app.register_blueprint(orientation_blueprint, url_prefix='/orientations')
