@@ -65,7 +65,7 @@ def append_select_2(col):
     text = sql.text(f"SELECT id, name FROM {col} ORDER BY name") 
     results = db.session.execute(text)
     select = f'''<select name="{col}" class="col-md-12">
-                <option disabled selected value="default">Sélectionner</option>'''
+                <option selected value="default">Sélectionner</option>'''
     for res in results:
         select += f'<option value={ res[0] }>{ res[1] }</option>'
     select += '</select>'
