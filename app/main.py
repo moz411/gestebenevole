@@ -7,6 +7,10 @@ from sqlalchemy import desc, sql
 from weasyprint import HTML
 from .models import db
 from . import utils
+import locale
+
+locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+today = datetime.now().strftime('%d %b %Y')
 
 def create_blueprint_for_model(model_class):
     blueprint = Blueprint(model_class.__tablename__, __name__)
@@ -46,6 +50,8 @@ def create_blueprint_for_model(model_class):
         payload = {'table': model_class.__tablename__,
                    'data':  model_class.query.get(id) if id else model_class(),
                    'user': current_user,
+                   'deletable': False,
+                   'today': False,
                    'id': id,
                    'columns': []}
         # Replace text by Python datetime object.
@@ -68,8 +74,9 @@ def create_blueprint_for_model(model_class):
         else:
             # Generate the form fields.
             payload['rows'] = utils.generate_rows(model_class, payload)
-            if hasattr(payload['data'], 'date'):
-                payload['deletable'] = True if payload['data'].date == datetime.now().date() else False
+            if hasattr(payload['data'], 'date') and payload['data'].date == datetime.now().date():
+                payload['deletable'] = True
+                payload['today'] = True
             return render_template('entry.html', **payload)
 
     @blueprint.route('/', methods=['GET'])
@@ -102,9 +109,6 @@ def create_blueprint_for_model(model_class):
 
         results = db.session.execute(text).fetchall()
         items = []
-        import locale
-        locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
-        today = datetime.now().strftime('%d %b %Y')
 
         for row in results:
             patient = f"{row[0]} {row[1]}"
@@ -125,17 +129,23 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/print/orientation/<orientation_id>', methods=['GET'])
     @login_required
     def print_orientation(orientation_id):
-        text = sql.text(f"""SELECT specialist.name, orientation.notes
+        text = sql.text(f"""SELECT patient.firstname, patient.lastname, patient.birth,
+                                   specialist.name, orientation.notes
                             FROM orientation 
-                            JOIN specialist ON orientation.specialist = specialist.id
+                            JOIN specialist ON orientation.specialist = specialist.id,
+                            consultation ON consultation.id = orientation.consultation,
+                            patient ON patient.id = consultation.patient
                             WHERE orientation.id = {orientation_id}""")
 
         results = db.session.execute(text).fetchall()
         items = []
         for row in results:
-            orientation = f'Orientation : {row[0]}\n\n{row[1]}'
+            patient = f"{row[0]} {row[1]}"
+            birth = f"Né(e) le {row[2]}"
+            orientation = f'Orientation : {row[3]}\n\n{row[4]}'
             items.append(orientation)
-        rendered = render_template('print.html', items=items)
+        rendered = render_template('print.html', items=items, 
+                                    today=today, patient=patient, birth=birth)
         pdf = HTML(string=rendered).write_pdf()
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'

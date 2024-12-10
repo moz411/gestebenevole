@@ -4,10 +4,12 @@
             <p><h4>{{ title }}</h4></p>
         </div>
         <div class="p-2">
+            {% if today %}
             <p><button class="btn btn-primary" onclick="showForm('{{ popup }}')">Ajouter</button>
-                {% if print_url %}
-                <button class="btn btn-primary" onclick="window.open('{{ print_url }}')">Imprimer</button>
-                {% endif %}
+            {% endif %}
+            {% if print_url %}
+            <button class="btn btn-primary" onclick="window.open('{{ print_url }}')">Imprimer</button>
+            {% endif %}
             </p>
         </div>
     </div>

@@ -180,14 +180,14 @@
 {% set title="Prescription médicaments" %}
 {% set popup="prescription" %}
 {% set print_url=url_for('consultation.print_prescriptions', consultation_id=id) %}
-{% set table_headers=["Date", "Médicament", "Quantité", "Notes", "Posologie", "Remis"] %}
+{% set table_headers=["Date", "Médicament", "Nombre d'unités", "Notes", "Posologie", "Remis"] %}
 {% set table_content=["date", "drugstore", "qty", "notes", "posology", "given"] %}
 {% set items=prescriptions %}
 {% set form_action=url_for('prescription.create') %}
 {% set delete_action=url_for('prescription.delete') %}
 {% set name="consultation" %}
 {% set form_fields=[{"label": "Médicament", "input": drugstore | safe}, 
-                    {"label": "Quantité", "input": '<input type="number" name="qty" min="1" max="100">'},
+                    {"label": "Nombre d'unités", "input": '<input type="number" name="qty" min="1" max="100" required>'},
                     {"label": "Notes", "input": '<input type="text" name="notes" class="col-md-12">'},
                     {"label": "Posologie", "input": '<input type="text" name="posology" class="col-md-12">'},
                     {"label": "Remis", "input": '<input type="checkbox" name="given">'}] %}

@@ -65,7 +65,7 @@ class Prescription(db.Model):
     date = Column(Date, nullable=False, info={'name': 'Date'})
     consultation = Column(Integer, ForeignKey('consultation.id'), nullable=False, info={'name': 'Consultation'})
     drugstore = Column(Integer, ForeignKey('drugstore.id'),  nullable=False, info={'name': 'Médicament'})
-    qty = Column(Integer, info={'name': 'Quantité'})
+    qty = Column(Integer, nullable=False, info={'name': "Nombre d'unités"})
     posology = Column(Text, info={'name': 'Posologie'})
     notes = Column(Text, info={'name': 'Notes'})
     given = Column(Boolean, info={'name': 'Remis'})
