@@ -11,7 +11,6 @@ class User(UserMixin, db.Model):
     name = Column(String, nullable=False, info={'name': 'Nom', 'list': 'visible'})
     email = Column(String, nullable=False, info={'name': 'Email', 'list': 'visible'})
     password = Column(String, nullable=False, info={'name': 'Mot de passe'})
-    phone = Column(String, info={'name': 'Téléphone', 'list': 'visible'})
     role = Column(Integer, ForeignKey('role.id'), nullable=False, info={'name': 'Rôle', 'list': 'visible'})
 
 class Patient(db.Model):
