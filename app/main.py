@@ -162,36 +162,33 @@ def create_blueprint_for_model(model_class):
     def export_prescriptions():
         if current_user.role != 1:
             return redirect(url_for('patient.all'))
-        text = sql.text(f"""SELECT consultation.id, prescription.date,
+        text = sql.text(f"""SELECT prescription.date,
                                 patient.firstname, patient.lastname, patient.birth,
                                 user.name,
                                 prescription.qty,
-                                COALESCE(drugstore.name, ' '),
+                                drugstore.name, 
                                 prescription.notes, prescription.posology, prescription.given 
                             FROM prescription 
-                            LEFT JOIN drugstore ON prescription.drugstore = drugstore.id,
+                            JOIN drugstore ON prescription.drugstore = drugstore.id,
                             consultation ON consultation.id = prescription.consultation,
                             patient ON patient.id = consultation.patient,
                             user ON user.id = consultation.healer
                             WHERE 1=1""")
 
         results = db.session.execute(text).fetchall()
-        export = """
-                "consultation.id";
-                "prescription.date";
-                "patient.firstname"; "patient.lastname"; "patient.birth";
-                "user.name";
-                "prescription.qty";
-                "drugstore.name";
-                "prescription.notes"; "prescription.posology"; "prescription.given"
-                """
+        export = """prescription.date,
+                    patient.firstname, patient.lastname, patient.birth,
+                    user.name,
+                    prescription.qty,
+                    drugstore.name, 
+                    prescription.notes, prescription.posology, prescription.given"""
         export = export.replace('\n ', '').replace(' ', '') + '\n'
         for res in results:
-            export += ';'.join([f'"{str(r)}"' for r in res]) + '\n'
+            export += ','.join([str(r) for r in res]) + '\n'
         
         response = make_response(export)
         response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = 'inline; filename=prescriptions.csv'
+        response.headers['Content-Disposition'] = 'inline; filename=export_prescriptions.csv'
         return response
     
     return blueprint
