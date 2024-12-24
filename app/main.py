@@ -24,7 +24,9 @@ def create_blueprint_for_model(model_class):
         db.session.add(new_entry)
         db.session.commit()
         # Remove qty from drugstore stock if update is a prescription.
-        if model_class.__tablename__ == 'prescription' and form_data.get('given'): 
+        if (model_class.__tablename__ == 'prescription' 
+            and form_data.get('given') 
+            and form_data.get('drugstore') != 'default'): 
             text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
             db.session.execute(text)
             db.session.commit()
@@ -100,23 +102,24 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/print/<consultation_id>/prescriptions', methods=['GET'])
     @login_required
     def print_prescriptions(consultation_id):
+        items = []
+        patient = ''
+        birth = ''
         text = sql.text(f"""SELECT patient.firstname, patient.lastname, patient.birth,
-                                   drugstore.name, 
+                                   COALESCE(drugstore.name, ' '),
                                    prescription.notes, prescription.posology, prescription.given 
                             FROM prescription 
-                            JOIN drugstore ON prescription.drugstore = drugstore.id,
+                            LEFT JOIN  drugstore ON prescription.drugstore = drugstore.id,
                             consultation ON consultation.id = {consultation_id},
                             patient ON patient.id = consultation.patient
                             WHERE consultation = {consultation_id}""")
-
         results = db.session.execute(text).fetchall()
-        items = []
 
         for row in results:
             patient = f"{row[0]} {row[1]}"
             birth = f"Né(e) le {row[2]}"
             drug = row[3] if row[3] != 'Autre' else ''
-            prescription = f'''{drug}\n{row[4]} {row[5]}'''
+            prescription = f'{drug}\n{row[4]} {row[5]}'
             prescription += '\n (REMIS)' if row[6] else ''
             items.append(prescription)
         rendered = render_template('print.html', items=items, 
