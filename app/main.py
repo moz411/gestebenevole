@@ -167,29 +167,62 @@ def create_blueprint_for_model(model_class):
                                 patient.firstname, patient.lastname, patient.birth,
                                 user.name,
                                 prescription.qty,
-                                drugstore.name, 
+                                COALESCE(drugstore.name, ' '),
                                 prescription.notes, prescription.posology, prescription.given 
                             FROM prescription 
-                            JOIN drugstore ON prescription.drugstore = drugstore.id,
+                            LEFT JOIN drugstore ON prescription.drugstore = drugstore.id,
                             consultation ON consultation.id = prescription.consultation,
                             patient ON patient.id = consultation.patient,
                             user ON user.id = consultation.healer
                             WHERE 1=1""")
 
         results = db.session.execute(text).fetchall()
-        export = """prescription.date,
-                    patient.firstname, patient.lastname, patient.birth,
-                    user.name,
-                    prescription.qty,
-                    drugstore.name, 
-                    prescription.notes, prescription.posology, prescription.given"""
+        export = """
+                "prescription.date";
+                "patient.firstname"; "patient.lastname"; "patient.birth";
+                "user.name";
+                "prescription.qty";
+                "drugstore.name";
+                "prescription.notes"; "prescription.posology"; "prescription.given"
+                """
         export = export.replace('\n ', '').replace(' ', '') + '\n'
         for res in results:
-            export += ','.join([str(r) for r in res]) + '\n'
+            export += ';'.join([f'"{str(r)}"' for r in res]) + '\n'
         
         response = make_response(export)
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = 'inline; filename=export_prescriptions.csv'
+        return response
+    
+    # add a route to export consultations to CSV
+    @blueprint.route('/export/consultations', methods=['GET'])
+    @login_required
+    def export_consultations():
+        if current_user.role != 1:
+            return redirect(url_for('patient.all'))
+        text = sql.text(f"""SELECT consultation.date, 
+                                   patient.firstname, patient.lastname, patient.birth, 
+                                   user.name, consultation.motive, consultation.notes
+                            FROM consultation 
+                            JOIN patient ON patient.id = consultation.patient, 
+                                 user ON user.id = consultation.healer
+                            WHERE 1=1""")
+
+        results = db.session.execute(text).fetchall()
+        export = """
+                "consultation.date";
+                "patient.firstname"; "patient.lastname"; "patient.birth";
+                "user.name";
+                "consultation.motive";
+                "consultation.notes"
+                """
+        export = export.replace('\n ', '').replace(' ', '') + '\n'
+        for res in results:
+            export += ';'.join([f'"{str(r)}"' for r in res]) + '\n'
+        
+        response = make_response(export)
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = 'inline; filename=export_consultations.csv'
         return response
     
     return blueprint
