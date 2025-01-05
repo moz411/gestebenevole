@@ -194,15 +194,44 @@ def create_blueprint_for_model(model_class):
         response.headers['Content-Disposition'] = 'inline; filename=export_prescriptions.csv'
         return response
     
-    # add a route to export consultations to CSV
-    @blueprint.route('/reporting', methods=['GET'])
+    @blueprint.route('/reporting/consultations', methods=['GET'])
     @login_required
-    def reporting():
+    def reporting_consultations():
         if current_user.role != 1:
             return redirect(url_for('patient.all'))
         export = """
                     consultation.id, consultation.date, consultation.motive, consultation.notes, 
-                    patient.id, patient.added, patient.birth, patient.gender,
+                    consultation.location, patient.id, patient.added, patient.birth, patient.gender,
+                    patient.nationality, patient.addressed_by, patient.treatment, 
+                    patient.vaccination, patient.history, patient.notes,
+                    residency.date, residency.address, residency.notes
+                 """
+        text = sql.text(f"""SELECT {export}
+                            FROM consultation 
+                            LEFT JOIN patient ON patient.id = consultation.patient
+                            LEFT JOIN residency ON residency.patient = consultation.patient 
+                            WHERE 1=1
+                            ORDER BY consultation.id DESC""")
+
+        results = db.session.execute(text).fetchall()
+        export = export.replace('\n ', '').replace(' ', '').split(',')
+        export = ';'.join([f'"{str(r)}"' for r in export]) + '\n'
+        for res in results:
+            export += ';'.join([f'"{str(r)}"' for r in res]) + '\n'
+    
+        response = make_response(export)
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = 'inline; filename=reporting_gestebenevole .csv'
+        return response
+    
+    @blueprint.route('/reporting/prescriptions', methods=['GET'])
+    @login_required
+    def reporting_prescriptions():
+        if current_user.role != 1:
+            return redirect(url_for('patient.all'))
+        export = """
+                    consultation.id, consultation.date, consultation.motive, consultation.notes, 
+                    consultation.location, patient.id, patient.added, patient.birth, patient.gender,
                     patient.nationality, patient.addressed_by, patient.treatment, 
                     patient.vaccination, patient.history, patient.notes,
                     residency.date, residency.address, residency.notes
@@ -223,6 +252,5 @@ def create_blueprint_for_model(model_class):
         response.headers['Content-Type'] = 'text/csv'
         response.headers['Content-Disposition'] = 'inline; filename=reporting_gestebenevole .csv'
         return response
-        return export
     
     return blueprint
