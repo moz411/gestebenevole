@@ -132,6 +132,11 @@ def generate_rows(model_class, payload):
                              <option value="M" { "selected" if value == "M" else "" }>Masculin</option>
                              <option value="F" { "selected" if value == "F" else "" }>Féminin</option>
                              <option value="A" { "selected" if value == "A" else "" }>Autre</option></select>'''))
+            elif col.name in ['location']:
+                rows.append((col.info.get('name'), f'''<select name="{col.name}" class="col-md-2">
+                             <option disabled selected>Sélectionner</option>
+                             <option value="ES" { "selected" if value == "ES" else "" }>Espace Solidarité</option>
+                             <option value="IPS" { "selected" if value == "IPS" else "" }>IPS</option>'''))
             else:
                 rows.append((col.info.get('name'), f'<input type="text" name="{col.name}" value="{value}" {required} class="col-md-12"></input>')) 
         elif str(col.type) == 'TEXT':

@@ -48,6 +48,7 @@ class Consultation(db.Model):
     healer = Column(Integer,ForeignKey('user.id'), nullable=False, info={'name': 'Soignant', 'list': 'visible'})
     motive = Column(String, nullable=False, info={'name': 'Motif'})
     notes = Column(Text, info={'name': 'Notes'})
+    location = Column(String, info={'name': 'Emplacement'})
 
 class Appointment(db.Model):
     __tablename__ = 'appointment'
