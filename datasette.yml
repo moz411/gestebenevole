@@ -1,0 +1,428 @@
+---
+plugins:
+  datasette-auth-passwords:
+    admin_password_hash: pbkdf2_sha256$480000$d5a21125e809490631ef95e542cabe95$A3jCHIpVzB4A6ivgPJBR7D1b7IoXETDXfcu2fMP3Lwk=
+databases:
+  gestebenevole:
+    allow:
+      id: admin
+    queries:
+      Prescriptions:
+        hide_sql: true
+        sql: >-
+          SELECT prescription.date,
+              patient.firstname, patient.lastname, patient.birth,
+              user.name,
+              prescription.qty,
+              drugstore.name, 
+              prescription.notes, prescription.posology, prescription.given 
+          FROM prescription 
+          JOIN drugstore ON prescription.drugstore = drugstore.id,
+          consultation ON consultation.id = prescription.consultation,
+          patient ON patient.id = consultation.patient,
+          user ON user.id = consultation.healer
+          WHERE 1=1;
+      Couverture sociale:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', coverage.date) AS year,
+            SUM(
+              CASE
+                WHEN coverage.current = "oui" THEN 1
+                ELSE 0
+              END
+            ) AS "Oui",
+            SUM(
+              CASE
+                WHEN coverage.current = "non" THEN 1
+                ELSE 0
+              END
+            ) AS "Non",
+            SUM(
+              CASE
+                WHEN coverage.current = "inprogress" THEN 1
+                ELSE 0
+              END
+            ) AS "En cours"
+          FROM
+            coverage
+          GROUP BY
+            strftime('%Y', coverage.date);
+      Nombre de consultations:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', consultation.date) AS year,
+            COUNT(consultation.id) AS count
+          FROM
+            consultation
+            INNER JOIN patient ON consultation.patient = patient.id
+          GROUP BY
+            strftime('%Y', consultation.date);
+      Evolution par pôle:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', consultation.date) AS year,
+            SUM(
+              CASE
+                WHEN location = "ES" THEN 1
+                ELSE 0
+              END
+            ) AS "ES",
+            SUM(
+              CASE
+                WHEN location = "IPS" THEN 1
+                ELSE 0
+              END
+            ) AS "IPS"
+          FROM
+            consultation
+          GROUP BY
+            strftime('%Y', consultation.date);
+      Répartition géographique:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', residency.date) AS year,
+            SUM(
+              CASE
+                WHEN city.id = 1 THEN 1
+                ELSE 0
+              END
+            ) AS "Bois d'Arcy",
+            SUM(
+              CASE
+                WHEN city.id = 2 THEN 1
+                ELSE 0
+              END
+            ) AS "Coignières",
+            SUM(
+              CASE
+                WHEN city.id = 3 THEN 1
+                ELSE 0
+              END
+            ) AS "Elancourt",
+            SUM(
+              CASE
+                WHEN city.id = 4 THEN 1
+                ELSE 0
+              END
+            ) AS "Fontenay-le-Fleury",
+            SUM(
+              CASE
+                WHEN city.id = 5 THEN 1
+                ELSE 0
+              END
+            ) AS "Guyancourt",
+            SUM(
+              CASE
+                WHEN city.id = 6 THEN 1
+                ELSE 0
+              END
+            ) AS "La Verrière",
+            SUM(
+              CASE
+                WHEN city.id = 7 THEN 1
+                ELSE 0
+              END
+            ) AS "Le-Mesnil-Saint-Denis",
+            SUM(
+              CASE
+                WHEN city.id = 8 THEN 1
+                ELSE 0
+              END
+            ) AS "Les Clayes-sous-Bois",
+            SUM(
+              CASE
+                WHEN city.id = 9 THEN 1
+                ELSE 0
+              END
+            ) AS "Magny-les-Hameaux",
+            SUM(
+              CASE
+                WHEN city.id = 10 THEN 1
+                ELSE 0
+              END
+            ) AS "Maurepas",
+            SUM(
+              CASE
+                WHEN city.id = 11 THEN 1
+                ELSE 0
+              END
+            ) AS "Montigny-le-Btx",
+            SUM(
+              CASE
+                WHEN city.id = 12 THEN 1
+                ELSE 0
+              END
+            ) AS "Plaisir",
+            SUM(
+              CASE
+                WHEN city.id = 13 THEN 1
+                ELSE 0
+              END
+            ) AS "Saint-Cyr-L'école",
+            SUM(
+              CASE
+                WHEN city.id = 14 THEN 1
+                ELSE 0
+              END
+            ) AS "Trappes",
+            SUM(
+              CASE
+                WHEN city.id = 15 THEN 1
+                ELSE 0
+              END
+            ) AS "Versailles",
+            SUM(
+              CASE
+                WHEN city.id = 16 THEN 1
+                ELSE 0
+              END
+            ) AS "Villepreux",
+            SUM(
+              CASE
+                WHEN city.id = 17 THEN 1
+                ELSE 0
+              END
+            ) AS "Voisins-le-Btx",
+            SUM(
+              CASE
+                WHEN city.id = 18 THEN 1
+                ELSE 0
+              END
+            ) AS "Les-Essarts-le-Roi",
+            SUM(
+              CASE
+                WHEN city.id = 19 THEN 1
+                ELSE 0
+              END
+            ) AS "Le-Perray-en-Yvelines",
+            SUM(
+              CASE
+                WHEN city.id = 20 THEN 1
+                ELSE 0
+              END
+            ) AS "Saint-Rémy-les-Chevreuses",
+            SUM(
+              CASE
+                WHEN city.id = 21 THEN 1
+                ELSE 0
+              END
+            ) AS "Rambouillet",
+            SUM(
+              CASE
+                WHEN city.id = 22 THEN 1
+                ELSE 0
+              END
+            ) AS "Autres 75",
+            SUM(
+              CASE
+                WHEN city.id = 23 THEN 1
+                ELSE 0
+              END
+            ) AS "Autres 78",
+            SUM(
+              CASE
+                WHEN city.id = 24 THEN 1
+                ELSE 0
+              END
+            ) AS "Autres 91",
+            SUM(
+              CASE
+                WHEN city.id = 25 THEN 1
+                ELSE 0
+              END
+            ) AS "Autres 92",
+            SUM(
+              CASE
+                WHEN city.id = 26 THEN 1
+                ELSE 0
+              END
+            ) AS "Autres 93",
+            SUM(
+              CASE
+                WHEN city.id = 27 THEN 1
+                ELSE 0
+              END
+            ) AS "Autres 94",
+            SUM(
+              CASE
+                WHEN city.id = 28 THEN 1
+                ELSE 0
+              END
+            ) AS "Autres 95"
+          FROM
+            residency
+            INNER JOIN patient ON residency.patient = patient.id
+            INNER JOIN city ON residency.city = city.id
+            INNER JOIN accommodation ON residency.accommodation = accommodation.id
+          GROUP BY
+            strftime('%Y', residency.date);
+      Domiciliation:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', residency.date) AS year,
+            SUM(
+              CASE
+                WHEN accommodation.id = 1 THEN 1
+                ELSE 0
+              END
+            ) AS "SDF",
+            SUM(
+              CASE
+                WHEN accommodation.id = 2 THEN 1
+                ELSE 0
+              END
+            ) AS "SDF avec domiciliation administrative",
+            SUM(
+              CASE
+                WHEN accommodation.id = 3 THEN 1
+                ELSE 0
+              END
+            ) AS "Hébergé famille",
+            SUM(
+              CASE
+                WHEN accommodation.id = 4 THEN 1
+                ELSE 0
+              END
+            ) AS "Hébergé autre",
+            SUM(
+              CASE
+                WHEN accommodation.id = 5 THEN 1
+                ELSE 0
+              END
+            ) AS "HUDA",
+            SUM(
+              CASE
+                WHEN accommodation.id = 6 THEN 1
+                ELSE 0
+              END
+            ) AS "CADA",
+            SUM(
+              CASE
+                WHEN accommodation.id = 7 THEN 1
+                ELSE 0
+              END
+            ) AS "FOYER",
+            SUM(
+              CASE
+                WHEN accommodation.id = 8 THEN 1
+                ELSE 0
+              END
+            ) AS "115-HOTEL",
+            SUM(
+              CASE
+                WHEN accommodation.id = 9 THEN 1
+                ELSE 0
+              END
+            ) AS "AUTRES",
+            SUM(
+              CASE
+                WHEN accommodation.id = 10 THEN 1
+                ELSE 0
+              END
+            ) AS "CHU"
+          FROM
+            residency
+            INNER JOIN patient ON residency.patient = patient.id
+            INNER JOIN city ON residency.city = city.id
+            INNER JOIN accommodation ON residency.accommodation = accommodation.id
+          GROUP BY
+            strftime('%Y', residency.date);
+      consultations_par_patient:
+        hide_sql: true
+        sql: >-
+          SELECT strftime('%Y', consultation.date) AS year,
+            COUNT(*) 
+          FROM
+            consultation
+          GROUP BY
+            consultation.patient, strftime('%Y', consultation.date);
+      Patients par genre:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', patient.added) AS year,
+            SUM(
+              CASE
+                WHEN patient.gender = "male" THEN 1
+                ELSE 0
+              END
+            ) AS "M",
+            SUM(
+              CASE
+                WHEN patient.gender = "female" THEN 1
+                ELSE 0
+              END
+            ) AS "F",
+            SUM(
+              CASE
+                WHEN patient.gender = "other" THEN 1
+                ELSE 0
+              END
+            ) AS "A"
+          FROM
+            patient
+          GROUP BY
+            strftime('%Y', patient.added);
+      Patients par tranche d'âge:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', patient.added) AS year,
+            SUM(
+              CASE
+                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 0 AND 2 THEN 1
+                ELSE 0
+              END
+            ) AS "0-2",
+            SUM(
+              CASE
+                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 3 AND 10 THEN 1
+                ELSE 0
+              END
+            ) AS "3-10",
+            SUM(
+              CASE
+                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 11 AND 17 THEN 1
+                ELSE 0
+              END
+            ) AS "11-17",
+            SUM(
+              CASE
+                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 18 AND 29 THEN 1
+                ELSE 0
+              END
+            ) AS "18-29",
+            SUM(
+              CASE
+                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 30 AND 39 THEN 1
+                ELSE 0
+              END
+            ) AS "30-39",
+            SUM(
+              CASE
+                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 40 AND 49 THEN 1
+                ELSE 0
+              END
+            ) AS "40-49",
+            SUM(
+              CASE
+                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 50 AND 59 THEN 1
+                ELSE 0
+              END
+            ) AS "50-59",
+            SUM(
+              CASE
+                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) > 59 THEN 1
+                ELSE 0
+              END
+            ) AS "59+"
+          FROM
+            patient
+          GROUP BY
+            strftime('%Y', patient.added);

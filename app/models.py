@@ -1,7 +1,7 @@
 # models.py
 
 from flask_login import UserMixin
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date, Text, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Text, Boolean
 
 from . import db
 
@@ -29,6 +29,7 @@ class Patient(db.Model):
     vaccination = Column(String, info={'name': 'Vaccination'})
     history = Column(Text, info={'name': 'ATCD'})
     notes = Column(Text, info={'name': 'Notes', 'list': 'visible'})
+    arrival = Column(Date, info={'name': "Date d'arrivée en France"})
 
 class Residency(db.Model):
     __tablename__ = 'residency'

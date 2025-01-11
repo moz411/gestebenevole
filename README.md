@@ -71,3 +71,10 @@ fiche patient :
 16/11/2024
 - ~~ATCD + vaccination visible uniquement par médecins~~
 - ~~Liste des consultations visibles pour les accueillants~~
+
+11/01/2025
+- ~~ajouter "domicile personnel" dans accommodation~~
+- ~~ajouter "arrivée en France" dans fiche patient~~
+- requete patient par genre
+- requete patient par tranche d'âge (à reprende depuis AG)
+- exclure patient 966 (test) des requêtes SQL
