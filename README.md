@@ -75,6 +75,7 @@ fiche patient :
 11/01/2025
 - ~~ajouter "domicile personnel" dans accommodation~~
 - ~~ajouter "arrivée en France" dans fiche patient~~
-- requete patient par genre
-- requete patient par tranche d'âge (à reprende depuis AG)
+- ~~requete patient par genre~~
+- ~~requete patient par tranche d'âge (à reprende depuis AG)~~
 - exclure patient 966 (test) des requêtes SQL
+- ~~Notes accueil et Notes médecin~~
