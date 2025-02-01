@@ -30,7 +30,7 @@ def create_blueprint_for_model(model_class):
             text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
             db.session.execute(text)
             db.session.commit()
-        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage']:
+        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment']:
             return redirect(request.referrer + '#bottom')
         else:
             return redirect(url_for(f"{model_class.__tablename__}.all"))
@@ -68,6 +68,7 @@ def create_blueprint_for_model(model_class):
             db.session.commit()
             
             return redirect(url_for(f"{model_class.__tablename__}.all"))
+        
         # Create a new entry if the form is submitted.
         elif not id and request.method == 'POST':
             new_entry = model_class(**form_data)
@@ -80,16 +81,24 @@ def create_blueprint_for_model(model_class):
             if hasattr(payload['data'], 'date') and payload['data'].date == datetime.now().date():
                 payload['deletable'] = True
                 payload['today'] = True
+            # Update the "viewed" field for patient
+            if (model_class.__tablename__ == "patient"):
+                text = sql.text(f"UPDATE patient SET viewed = CURRENT_TIMESTAMP WHERE id = {id}")
+                db.session.execute(text)
+                db.session.commit()
             return render_template('entry.html', **payload)
 
     @blueprint.route('/', methods=['GET'])
     @login_required
     def all():
+        order_by = desc(model_class.id)
+        if model_class.__tablename__  == "patient":
+            order_by = sql.text("viewed desc")
         if model_class.__tablename__ in ['consultation', 'prescription', 'appointment']:
             return redirect(url_for(f"patient.all"))
 
         payload = {'table': model_class.__tablename__, 
-                   'data': model_class.query.order_by(desc(model_class.id)).all(),
+                   'data': model_class.query.order_by(order_by).all(),
                    'user': current_user,
                    'datasets': utils.prepare_datasets(model_class), 
                    'columns': [(col.name, col.info.get('name')) 

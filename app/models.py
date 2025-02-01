@@ -16,10 +16,11 @@ class User(UserMixin, db.Model):
 class Patient(db.Model):
     __tablename__ = 'patient'
     id = Column(Integer, primary_key=True)
-    firstname = Column(String, nullable=False, info={'name': 'Prénom', 'list': 'visible'})
     lastname = Column(String, nullable=False, info={'name': 'Nom', 'list': 'visible'})
+    firstname = Column(String, nullable=False, info={'name': 'Prénom', 'list': 'visible'})
     added = Column(Date, nullable=False,  info={'name': 'Première visite', 'list': 'visible'})
     birth = Column(Date, nullable=False,  info={'name': 'Date de naissance', 'list': 'visible'})
+    arrival = Column(Date, nullable=False,  info={'name': "Date d'arrivée en France"})
     gender = Column(String, info={'name': 'Genre'})
     phone = Column(String, info={'name': 'Téléphone'})
     email = Column(String, info={'name': 'Email/Facebook'})
@@ -29,8 +30,7 @@ class Patient(db.Model):
     vaccination = Column(String, info={'name': 'Vaccination'})
     history = Column(Text, info={'name': 'ATCD'})
     notes = Column(Text, info={'name': 'Notes sur le patient', 'list': 'visible'})
-    arrival = Column(Date, info={'name': "Date d'arrivée en France"})
-
+    
 class Residency(db.Model):
     __tablename__ = 'residency'
     id = Column(Integer, primary_key=True)

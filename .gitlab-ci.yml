@@ -10,7 +10,7 @@ tag_version:
     - apk add --no-cache git
   script:
     - echo "Récupération du dernier tag"
-    - LAST_TAG=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+    - LAST_TAG=$(git describe --tags --abbrev=0 || echo "v1.1.0")
     - NEW_TAG=$(echo $LAST_TAG | awk -F. '{printf "%s.%d.%d", $1,$2,$3+1}')
     - git config --global user.email "cd@moz42.gitlab.com"
     - git config --global user.name "CD Pipeline"
