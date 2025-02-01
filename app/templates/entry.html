@@ -163,6 +163,22 @@
 {% include 'section.html' %}
 {% endif %}
 
+{% if user.role == 4 %}
+{% set title="Assistance sociale" %}
+{% set popup="appointments" %}
+{% set table_headers=["Date", "Motif", "Notes sur le rendez-vous"] %}
+{% set table_content=["date", "motive", "notes"] %}
+{% set items=appointments %}
+{% set form_action=url_for('appointment.create') %}
+{% set delete_action=url_for('appointment.delete') %}
+{% set form_fields=[
+    {"label": "Motif", "input": '<input type="text" name="motive" class="col-md-12">'},
+    {"label": "Notes", "input": '<textarea rows="4" name="notes" class="col-md-12"></textarea>'},
+    {"input": '<input type="number" name="healer" value="{{ user.id }}" hidden>'}
+    ] %}
+{% include 'section.html' %}
+{% endif %}
+
 <script>
     let currentDate = new Date();
     let formattedDate = currentDate.getFullYear() + "-" + (currentDate.getMonth() + 1).toString().padStart(2, '0') + "-" + currentDate.getDate().toString().padStart(2, '0');

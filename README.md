@@ -79,3 +79,12 @@ fiche patient :
 - ~~requete patient par tranche d'âge (à reprende depuis AG)~~
 - exclure patient 966 (test) des requêtes SQL
 - ~~Notes accueil et Notes médecin~~
+
+01/02/2025
+- ~~impression ordonnance -> la date 13/01 s'affiche par défaut~~
+- patient: inverser nom <-> prénom à partir de AHMED ABDOU HAMZA 
+- ~~- patient : renommer colonnes nom et prénom~~
+- ~~patient : trier par "viewed" desc~~
+- prescription médicaments : remis "Oui" ou "Non"
+- ~~profil Assistant.e sociale : vérifier RBAC~~
+- ~~bug "Python date objects" sur champ "Date d'arrivée en France"~~
