@@ -82,7 +82,7 @@ def create_blueprint_for_model(model_class):
                 payload['deletable'] = True
                 payload['today'] = True
             # Update the "viewed" field for patient
-            if (model_class.__tablename__ == "patient"):
+            if (id and model_class.__tablename__ == "patient"):
                 text = sql.text(f"UPDATE patient SET viewed = CURRENT_TIMESTAMP WHERE id = {id}")
                 db.session.execute(text)
                 db.session.commit()
