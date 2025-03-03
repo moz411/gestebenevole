@@ -88,3 +88,8 @@ fiche patient :
 - prescription médicaments : remis "Oui" ou "Non"
 - ~~profil Assistant.e sociale : vérifier RBAC~~
 - ~~bug "Python date objects" sur champ "Date d'arrivée en France"~~
+
+03/03/2025
+- Ajouter location "Elancourt"
+- Fournir détails box 5g à Marie-jo
+- Ajouter requête SQL sur Orientation (nom, prénom, etc.)
