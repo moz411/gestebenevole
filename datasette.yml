@@ -17,8 +17,20 @@ databases:
               drugstore.name, 
               prescription.notes, prescription.posology, prescription.given 
           FROM prescription 
-          JOIN drugstore ON prescription.drugstore = drugstore.id,
+          LEFT JOIN drugstore ON prescription.drugstore = drugstore.id,
           consultation ON consultation.id = prescription.consultation,
+          patient ON patient.id = consultation.patient,
+          user ON user.id = consultation.healer
+          WHERE 1=1;
+      Orientations:
+        hide_sql: true
+        sql: >-
+          SELECT orientation.date, 
+              patient.firstname, patient.lastname, patient.birth,
+              user.name AS healer, specialist.name AS specialist, orientation.notes
+          FROM orientation
+          LEFT JOIN specialist ON orientation.specialist = specialist.id,
+          consultation ON consultation.id = orientation.consultation,
           patient ON patient.id = consultation.patient,
           user ON user.id = consultation.healer
           WHERE 1=1;
