@@ -94,6 +94,8 @@ def create_blueprint_for_model(model_class):
         order_by = desc(model_class.id)
         if model_class.__tablename__  == "patient":
             order_by = sql.text("viewed desc")
+        elif model_class.__tablename__  == "drugstore":
+            order_by = sql.text("name")
         if model_class.__tablename__ in ['consultation', 'prescription', 'appointment']:
             return redirect(url_for(f"patient.all"))
 
