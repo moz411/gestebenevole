@@ -32,6 +32,8 @@ def create_blueprint_for_model(model_class):
             db.session.commit()
         if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment']:
             return redirect(request.referrer + '#bottom')
+        elif model_class.__tablename__ in ['patient']:
+            return redirect(url_for(f"{model_class.__tablename__}.update") + "/" + repr(new_entry.id))
         else:
             return redirect(url_for(f"{model_class.__tablename__}.all"))
         
