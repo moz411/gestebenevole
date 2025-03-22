@@ -90,6 +90,16 @@ fiche patient :
 - ~~bug "Python date objects" sur champ "Date d'arrivée en France"~~
 
 03/03/2025
-- Ajouter location "Elancourt"
+- ~~Ajouter location "Elancourt"~~
 - Fournir détails box 5g à Marie-jo
-- Ajouter requête SQL sur Orientation (nom, prénom, etc.)
+- ~~Ajouter requête SQL Orientations (nom, prénom, etc.)~~
+
+22/03/2025
+- ~~location dans la requête Prescriptions~~
+- ~~ATCD dans fiche patient pour soignants~~
+- ~~recherche dynamique pour Prescriptions médicaments~~
+- ~~retrait champ location dans vue Pharmacie~~
+- ~~retour directement sur la fiche Patient après sa création~~
+- option Prescription -> remis uniquement pour site IPS
+- chiffrer la base
+- redémarrer l'application à 6h00

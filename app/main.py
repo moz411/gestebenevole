@@ -25,7 +25,8 @@ def create_blueprint_for_model(model_class):
         db.session.commit()
         # Remove qty from drugstore stock if update is a prescription.
         if (model_class.__tablename__ == 'prescription' 
-            and form_data.get('given') 
+            and form_data.get('given')
+            and form_data.get('drugstore')
             and form_data.get('drugstore') != 'default'): 
             text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
             db.session.execute(text)

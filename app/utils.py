@@ -31,6 +31,7 @@ def prepare_datasets(model_class):
                 datasets.update({key.column.table.name: results})
     return datasets
 
+
 def retreive(table, column, id):
     text = sql.text(f"SELECT * FROM {table} where {column} = {id} ORDER BY id DESC")
     results = db.session.execute(text)
@@ -71,6 +72,15 @@ def append_select_2(col):
     select += '</select>'
     return select
 
+def append_select_3(col):
+    select = f'''<input id="{col}-search" type="search" 
+                class="search col-md-12" placeholder="Rechercher...">
+                <input type="hidden" name="{col}" id="{col}-value">
+                <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                <table id="{col}-table">
+                <tbody></tbody></table></div>'''
+    return select
+
 def generate_rows(model_class, payload):
     data = payload.get('data')
     id = payload.get('id')
@@ -89,12 +99,12 @@ def generate_rows(model_class, payload):
         payload['prescriptions'] = retreive('prescription', 'consultation', id)
         payload['orientations'] = retreive('orientation', 'consultation', id)
         payload['datasets'] = prepare_datasets(['drugstore', 'specialist'])
-        payload['drugstore'] = append_select_2('drugstore')
+        payload['drugstore'] = append_select_3('drugstore')
         payload['specialists'] = append_select_2('specialist')
     for col in model_class.__table__.columns:
         value = getattr(data, col.name)
         required = "required" if col.nullable == False else ""
-        if col.name == 'id' or (col.name in ["history", "vaccination"] and current_user.id not in [1,6]):
+        if col.name == 'id' or (col.name in ["history", "vaccination"] and current_user.role not in [1,6]):
             continue
         elif str(col.type) == 'INTEGER':
             if model_class.__tablename__ == 'drugstore':

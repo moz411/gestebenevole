@@ -34,6 +34,13 @@
       width: 800px;
       padding: 2rem;
     }
+
+    .hiddenlist tr {
+      display: none;
+    }
+    .hiddenlist tr.matching {
+      display: table-row;
+    }
   </style>
 </head>
 
@@ -81,17 +88,19 @@
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script src="{{ url_for('static', filename='list.min.js') }}"></script>
   <script src="{{ url_for('static', filename='select2.min.js') }}"></script>
-  {% if user %}
-
   {% if datasets %}
   {% for key, rows in datasets.items() %}
+  <div id="{{ key }}-dataset">
   {% for row in rows %}
-  <{{ key }} id={{ key }}-{{ row.id | safe }} data-name="{{ row.name | safe }}" />
+  <div id="{{ key }}" data-id="{{ row.id | safe }}" data-name="{{ row.name | safe }}" ></div>
   {% endfor %}
+  </div>
   <script>
     for (let el of document.getElementsByClassName("{{ key }}")) {
       try {
-        el.textContent = document.getElementById("{{ key }}-" + el.textContent).getAttribute("data-name");
+        selector = '#{{ key }}[data-id="' + el.textContent + '"]';
+        selected = document.querySelector(selector);
+        el.textContent = selected.dataset.name;
       } catch (e) {
         console.log(e);
       }
@@ -99,60 +108,8 @@
   </script>
   {% endfor %}
   {% endif %}
-  <script>
-    function showForm(formOverlay) {
-      document.getElementById(formOverlay).classList.add('active');
-    }
-
-    function hideForm(formOverlay) {
-      document.getElementById(formOverlay).classList.remove('active');
-    }
-  </script>
-  <script>
-    // select list
-    jQuery(document).ready(function ($) {
-      $(".clickable-row").click(function () {
-        window.location = $(this).data("href");
-      });
-      $('#mySelect').select2();
-    });
-
-    // date formatting
-    for (let el of document.querySelectorAll(".date, .added, .birth")) {
-      el.textContent = new Date(el.textContent).toLocaleDateString('fr-FR');
-    }
-
-    // search
-    new List('entries', { valueNames: ["name", "firstname", "lastname", "category", "email", "date", "patient", "notes", "added", "birth"] });
-  </script>
-
-  <script>
-    // auto-logout
-    var maxIdleTime = 900000;
-    var logoutUrl = "{{ url_for('auth.logout') }}";
-
-    var idleTimer;
-    function resetTimer() {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(redirectToLogout, maxIdleTime);
-    }
-
-    function redirectToLogout() {
-      window.location.href = logoutUrl;
-    }
-
-    window.onload = resetTimer;
-    window.onmousemove = resetTimer;
-    window.onmousedown = resetTimer;
-    window.onclick = resetTimer;
-    window.onscroll = resetTimer;
-    window.onkeypress = resetTimer;
-
-    window.addEventListener('popstate', function(event) {
-    location.reload();
-});
-
-  </script>
+  {% if user %}
+  <script src="{{ url_for('static', filename='gestebenevole.js') }}"></script>
   {% endif %}
   <div id="bottom">
 </div>
