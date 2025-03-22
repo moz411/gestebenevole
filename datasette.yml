@@ -1,7 +1,7 @@
 ---
 plugins:
   datasette-auth-passwords:
-    admin_password_hash: pbkdf2_sha256$480000$d5a21125e809490631ef95e542cabe95$A3jCHIpVzB4A6ivgPJBR7D1b7IoXETDXfcu2fMP3Lwk=
+    admin_password_hash: pbkdf2_sha256$480000$d39d7578da022127dbb517e71b2f5c6d$uLAW/wGn5aB2rZZTDf0dD7R+rxMvh70FBhayxKfhUbg=
 databases:
   gestebenevole:
     allow:
@@ -13,6 +13,7 @@ databases:
           SELECT prescription.date,
               patient.firstname, patient.lastname, patient.birth,
               user.name,
+              consultation.location,
               prescription.qty,
               drugstore.name, 
               prescription.notes, prescription.posology, prescription.given 

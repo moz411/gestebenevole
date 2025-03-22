@@ -97,7 +97,6 @@ class Drugstore(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False, info={'name': 'Nom', 'list': 'visible'})
     qty = Column(Integer, info={'name': 'Quantité', 'list': 'visible'})
-    location = Column(String, info={'name': 'Emplacement', 'list': 'visible'})
 
 class Specialist(db.Model):
     __tablename__ = 'specialist'

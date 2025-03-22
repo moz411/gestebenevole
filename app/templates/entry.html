@@ -130,7 +130,7 @@
 </table>
 
 {% endif %}
-
+                    <!-- {"label": "Médicament", "input": drugstore | safe},  -->
 {% if table == 'consultation' and id %}
 {% set title="Prescription médicaments" %}
 {% set popup="prescription" %}
@@ -141,7 +141,7 @@
 {% set form_action=url_for('prescription.create') %}
 {% set delete_action=url_for('prescription.delete') %}
 {% set name="consultation" %}
-{% set form_fields=[{"label": "Médicament", "input": drugstore | safe}, 
+{% set form_fields=[{"label": "Médicament", "input": drugstore | safe },
                     {"label": "Nombre d'unités", "input": '<input type="number" name="qty" min="1" max="100" required>'},
                     {"label": "Notes", "input": '<input type="text" name="notes" class="col-md-12">'},
                     {"label": "Posologie", "input": '<input type="text" name="posology" class="col-md-12">'},
