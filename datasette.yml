@@ -1,7 +1,4 @@
 ---
-plugins:
-  datasette-auth-passwords:
-    admin_password_hash: pbkdf2_sha256$480000$d39d7578da022127dbb517e71b2f5c6d$uLAW/wGn5aB2rZZTDf0dD7R+rxMvh70FBhayxKfhUbg=
 databases:
   gestebenevole:
     allow:
