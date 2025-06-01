@@ -30,7 +30,7 @@ databases:
         sql: >-
           SELECT orientation.date, 
               patient.firstname, patient.lastname, patient.birth,
-              user.name AS healer, specialist.name AS specialist, orientation.notes
+              user.name AS healer, specialist.name AS specialist
           FROM orientation
           LEFT JOIN specialist ON orientation.specialist = specialist.id,
           consultation ON consultation.id = orientation.consultation,
@@ -64,17 +64,6 @@ databases:
             coverage
           GROUP BY
             strftime('%Y', coverage.date);
-      Nombre de consultations:
-        hide_sql: true
-        sql: >-
-          SELECT
-            strftime('%Y', consultation.date) AS year,
-            COUNT(consultation.id) AS count
-          FROM
-            consultation
-            INNER JOIN patient ON consultation.patient = patient.id
-          GROUP BY
-            strftime('%Y', consultation.date);
       Evolution par pôle:
         hide_sql: true
         sql: >-
@@ -355,6 +344,99 @@ databases:
             INNER JOIN accommodation ON residency.accommodation = accommodation.id
           GROUP BY
             strftime('%Y', residency.date);
+      Patients par genre:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', (
+              SELECT MAX(date)
+              FROM consultation
+              WHERE consultation.patient = patient.id
+            )) AS year,
+            SUM(CASE WHEN gender = 'M' THEN 1 ELSE 0 END) AS "M",
+            SUM(CASE WHEN gender = 'F' THEN 1 ELSE 0 END) AS "F",
+            SUM(CASE WHEN gender = 'A' THEN 1 ELSE 0 END) AS "A"
+          FROM patient
+          WHERE EXISTS (
+            SELECT 1 FROM consultation WHERE consultation.patient = patient.id
+          )
+          GROUP BY year
+          ORDER BY year;
+      Patients par tranche d'âge:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', (
+              SELECT MAX(date)
+              FROM consultation
+              WHERE consultation.patient = patient.id
+            )) AS year,
+            
+            SUM(CASE
+                  WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(strftime('%Y', birth) AS INTEGER) BETWEEN 0 AND 2 THEN 1
+                  ELSE 0
+                END) AS "0-2",
+            SUM(CASE
+                  WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(strftime('%Y', birth) AS INTEGER) BETWEEN 3 AND 10 THEN 1
+                  ELSE 0
+                END) AS "3-10",
+            SUM(CASE
+                  WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(strftime('%Y', birth) AS INTEGER) BETWEEN 11 AND 17 THEN 1
+                  ELSE 0
+                END) AS "11-17",
+            SUM(CASE
+                  WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(strftime('%Y', birth) AS INTEGER) BETWEEN 18 AND 29 THEN 1
+                  ELSE 0
+                END) AS "18-29",
+            SUM(CASE
+                  WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(strftime('%Y', birth) AS INTEGER) BETWEEN 30 AND 39 THEN 1
+                  ELSE 0
+                END) AS "30-39",
+            SUM(CASE
+                  WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(strftime('%Y', birth) AS INTEGER) BETWEEN 40 AND 49 THEN 1
+                  ELSE 0
+                END) AS "40-49",
+            SUM(CASE
+                  WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(strftime('%Y', birth) AS INTEGER) BETWEEN 50 AND 59 THEN 1
+                  ELSE 0
+                END) AS "50-59",
+            SUM(CASE
+                  WHEN CAST(strftime('%Y', 'now') AS INTEGER) - CAST(strftime('%Y', birth) AS INTEGER) > 59 THEN 1
+                  ELSE 0
+                END) AS "59+"
+
+          FROM patient
+          WHERE EXISTS (
+            SELECT 1 FROM consultation WHERE consultation.patient = patient.id
+          )
+          GROUP BY year
+          ORDER BY year;
+      Consultations:
+        hide_sql: true
+        sql: >-
+          SELECT
+            consultation.id AS consultation_id,
+            consultation.date AS consultation_date,
+            patient.firstname,
+            patient.lastname,
+            patient.birth,
+            consultation.location,
+            user.name AS healer_name
+          FROM consultation
+          JOIN patient ON patient.id = consultation.patient
+          JOIN user ON user.id = consultation.healer
+          ORDER BY consultation.date DESC;
+      Nombre de consultations:
+        hide_sql: true
+        sql: >-
+          SELECT
+            strftime('%Y', consultation.date) AS year,
+            COUNT(consultation.id) AS count
+          FROM
+            consultation
+            INNER JOIN patient ON consultation.patient = patient.id
+          GROUP BY
+            strftime('%Y', consultation.date);
       Consultations par patient:
         hide_sql: true
         sql: >-
@@ -376,87 +458,28 @@ databases:
           FROM visites_par_patient
           GROUP BY year
           ORDER BY year;
-      Patients par genre:
+      Consultations avec pharmacie:
         hide_sql: true
         sql: >-
           SELECT
-            strftime('%Y', patient.added) AS year,
-            SUM(
-              CASE
-                WHEN patient.gender = "male" THEN 1
-                ELSE 0
-              END
-            ) AS "M",
-            SUM(
-              CASE
-                WHEN patient.gender = "female" THEN 1
-                ELSE 0
-              END
-            ) AS "F",
-            SUM(
-              CASE
-                WHEN patient.gender = "other" THEN 1
-                ELSE 0
-              END
-            ) AS "A"
-          FROM
-            patient
-          GROUP BY
-            strftime('%Y', patient.added);
-      Patients par tranche d'âge:
-        hide_sql: true
-        sql: >-
-          SELECT
-            strftime('%Y', patient.added) AS year,
-            SUM(
-              CASE
-                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 0 AND 2 THEN 1
-                ELSE 0
-              END
-            ) AS "0-2",
-            SUM(
-              CASE
-                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 3 AND 10 THEN 1
-                ELSE 0
-              END
-            ) AS "3-10",
-            SUM(
-              CASE
-                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 11 AND 17 THEN 1
-                ELSE 0
-              END
-            ) AS "11-17",
-            SUM(
-              CASE
-                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 18 AND 29 THEN 1
-                ELSE 0
-              END
-            ) AS "18-29",
-            SUM(
-              CASE
-                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 30 AND 39 THEN 1
-                ELSE 0
-              END
-            ) AS "30-39",
-            SUM(
-              CASE
-                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 40 AND 49 THEN 1
-                ELSE 0
-              END
-            ) AS "40-49",
-            SUM(
-              CASE
-                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) BETWEEN 50 AND 59 THEN 1
-                ELSE 0
-              END
-            ) AS "50-59",
-            SUM(
-              CASE
-                WHEN strftime('%Y', 'now') - strftime('%Y', patient.birth) > 59 THEN 1
-                ELSE 0
-              END
-            ) AS "59+"
-          FROM
-            patient
-          GROUP BY
-            strftime('%Y', patient.added);
+            consultation.id AS consultation_id,
+            consultation.date AS consultation_date,
+            patient.firstname,
+            patient.lastname,
+            patient.birth,
+            user.name AS healer_name,
+            consultation.location,
+            prescription.date AS prescription_date,
+            prescription.qty,
+            drugstore.name AS drug_name,
+            prescription.notes,
+            prescription.posology,
+            prescription.given
+          FROM prescription
+          JOIN consultation ON consultation.id = prescription.consultation
+          JOIN patient ON patient.id = consultation.patient
+          JOIN user ON user.id = consultation.healer
+          LEFT JOIN drugstore ON prescription.drugstore = drugstore.id
+          ORDER BY consultation.date DESC;
+
+
