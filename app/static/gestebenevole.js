@@ -60,7 +60,7 @@ if (drugstoreSearch) {
 
 // auto-logout
 var maxIdleTime = 900000;
-var logoutUrl = "{{ url_for('auth.logout') }}";
+var logoutUrl = "/logout";
 
 var idleTimer;
 function resetTimer() {

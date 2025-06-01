@@ -1,4 +1,9 @@
 ---
+plugins:
+  datasette-auth-passwords:
+    admin_password_hash: pbkdf2_sha256$480000$6ceebc22c629866dd54eb367ab19b92d$1WMLaSAQvIXl+L+Bpml6TBXf0YYzCdZcMkR557B0lKY=
+  datasette-render-xsls:
+    max_rows: 10000
 databases:
   gestebenevole:
     allow:
@@ -86,7 +91,13 @@ databases:
                 WHEN location = "IPS" THEN 1
                 ELSE 0
               END
-            ) AS "IPS"
+            ) AS "IPS",
+            SUM(
+              CASE
+                WHEN location = "Elancourt" THEN 1
+                ELSE 0
+              END
+            ) AS "Elancourt"
           FROM
             consultation
           GROUP BY
@@ -263,7 +274,8 @@ databases:
                 WHEN city.id = 28 THEN 1
                 ELSE 0
               END
-            ) AS "Autres 95"
+            ) AS "Autres 95",
+            COUNT(city.id) as "Total"
           FROM
             residency
             INNER JOIN patient ON residency.patient = patient.id
@@ -343,15 +355,27 @@ databases:
             INNER JOIN accommodation ON residency.accommodation = accommodation.id
           GROUP BY
             strftime('%Y', residency.date);
-      consultations_par_patient:
+      Consultations par patient:
         hide_sql: true
         sql: >-
-          SELECT strftime('%Y', consultation.date) AS year,
-            COUNT(*) 
-          FROM
-            consultation
-          GROUP BY
-            consultation.patient, strftime('%Y', consultation.date);
+          WITH visites_par_patient AS (
+            SELECT
+              strftime('%Y', date) AS year,
+              patient,
+              COUNT(*) AS nb_visites
+            FROM consultation
+            GROUP BY year, patient
+          )
+          SELECT
+            year,
+            SUM(CASE WHEN nb_visites = 1 THEN 1 ELSE 0 END) AS "1",
+            SUM(CASE WHEN nb_visites = 2 THEN 1 ELSE 0 END) AS "2",
+            SUM(CASE WHEN nb_visites = 3 THEN 1 ELSE 0 END) AS "3",
+            SUM(CASE WHEN nb_visites = 4 THEN 1 ELSE 0 END) AS "4",
+            SUM(CASE WHEN nb_visites >= 5 THEN 1 ELSE 0 END) AS "5+"
+          FROM visites_par_patient
+          GROUP BY year
+          ORDER BY year;
       Patients par genre:
         hide_sql: true
         sql: >-

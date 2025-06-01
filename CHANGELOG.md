@@ -99,3 +99,15 @@ fiche patient :
 - ~~option Prescription -> remis uniquement pour site IPS~~
 - chiffrer la base
 - ~~redémarrer l'application à 6h00~~
+
+30/05/2025
+- ~~ajouter "Elancourt" dans "Evolution par pôle"~~
+- ~~ajouter "Total" dans "Répartition géographique"~~
+- ~~faire la somme des consultations dans "Consultations par patient"~~
+- corriger requête "Patients par genre"
+- utiliser date de dernière consultation par patient plutôt que "patient.added" dans "Patients par tranche d'âge"
+- ajouter requête "Consultations avec pharmacie"
+- ajouter requête "Consultations" avec les champs "date	firstname	lastname	birth	location"
+- ~~corriger bug "url_for_logout"~~
+- retirer "notes" de la requête "Orientations"
+- ajouter le module datasette-render-xlsx
