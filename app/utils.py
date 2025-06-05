@@ -55,9 +55,8 @@ def append_select(col, rows, foreign_id):
     select = f'''<select name="{col.name}" class="col-md-12" {required}>
                 <option disabled selected>Sélectionner</option>'''
     for res in results:
-        select += f'<option value={ res[0] }>{ res[1] }</option>'
-        if res[0] == foreign_id:
-            select += f'<option value={ res[0] } selected>{ res[1] }</option>'
+        selected = ' selected' if res[0] == foreign_id else ''
+        select += f'<option value={ res[0] }{selected}>{ res[1] }</option>'
     select += '</select>'
     rows.append((col.info.get('name'), select))
     return rows
