@@ -52,38 +52,14 @@
     {% endif %}
     <br>
 
-{% if table == 'patient' and id %}
-{% set title="Résidence" %}
-{% set popup="residency" %}
-{% set table_headers=["Date", "Ville", "Nature hébergement", "Adresse", "Notes"] %}
-{% set table_content=["date", "city", "accommodation", "address", "notes"] %}
-{% set items=residencies %}
-{% set form_action=url_for('residency.create') %}
-{% set delete_action=url_for('residency.delete') %}
-{% set name="patient" %}
-{% set form_fields=[{"label": "Ville", "input": cities | safe}, {"label": "Nature Hébergement", "input": accommodations
-| safe}, {"label": "Adresse", "input": '<input type="text" name="address" class="col-md-12">'}, {"label": "Notes", "input": '<input
-    type="text" name="notes" class="col-md-12" >'}] %}
-{% include 'section.html' %}
 
-{% set title="Droits sociaux" %}
-{% set popup="coverage" %}
-{% set table_headers=["Date", "Droits sociaux", "Notes"] %}
-{% set table_content=["date", "current", "notes"] %}
-{% set items=coverages %}
-{% set form_action=url_for('coverage.create') %}
-{% set delete_action=url_for('coverage.delete') %}
-{% set name="patient" %}
-{% set form_fields=[
-    {"label": "Couverture", "input": '<select name="current" class="col-md-12">
-    <option disabled selected value="default">Sélectionner</option>
-    <option value="oui">Oui</option>
-    <option value="non">Non</option>
-    <option value="inprogress">En cours</option></select>'}, 
-    {"label": "Notes", "input": '<input type="text" name="notes" class="col-md-12">'}] %}
-{% include 'section.html' %}
-
-
+{% for section in sections %}
+{% include 'section.html' with title=section.title, popup=section.popup,
+    table_headers=section.table_headers, table_content=section.table_content,
+    items=section.items, form_action=section.form_action, delete_action=section.delete_action,
+    name=section.name, form_fields=section.form_fields, print_url=section.print_url,
+    print_items=section.print_items %}
+{% endfor %}
 <div class="container-fluid">
     <div class="d-flex justify-content-between">
         <div class="p-2">
@@ -131,53 +107,6 @@
 
 {% endif %}
                     <!-- {"label": "Médicament", "input": drugstore | safe},  -->
-{% if table == 'consultation' and id %}
-{% set title="Prescription médicaments" %}
-{% set popup="prescription" %}
-{% set print_url=url_for('consultation.print_prescriptions', consultation_id=id) %}
-{% set table_headers=["Date", "Médicament", "Nombre d'unités", "Notes", "Posologie", "Remis"] %}
-{% set table_content=["date", "drugstore", "qty", "notes", "posology", "given"] %}
-{% set items=prescriptions %}
-{% set form_action=url_for('prescription.create') %}
-{% set delete_action=url_for('prescription.delete') %}
-{% set name="consultation" %}
-{% set form_fields=[{"label": "Médicament", "input": drugstore | safe },
-                    {"label": "Nombre d'unités", "input": '<input type="number" name="qty" min="1" max="100" required>'},
-                    {"label": "Notes", "input": '<input type="text" name="notes" class="col-md-12">'},
-                    {"label": "Posologie", "input": '<input type="text" name="posology" class="col-md-12">'},
-                    {"label": "Remis", "input": '<input type="checkbox" name="given">'}] %}
-{% include 'section.html' %}
-
-{% set title="Orientations" %}
-{% set popup="orientations" %}
-{% set print_url=false %}
-{% set print_items=true %}
-{% set table_headers=["Date", "Spécialiste", "Notes"] %}
-{% set table_content=["date", "specialist", "notes"] %}
-{% set items=orientations %}
-{% set form_action=url_for('orientation.create') %}
-{% set delete_action=url_for('orientation.delete') %}
-{% set name="consultation" %}
-{% set form_fields=[{"label": "Spécialiste", "input": specialists | safe}, 
-{"label": "Notes", "input": '<textarea rows="4" name="notes" class="col-md-12"></textarea>'}] %}
-{% include 'section.html' %}
-{% endif %}
-
-{% if user.can_create('appointment') %}
-{% set title="Assistance sociale" %}
-{% set popup="appointments" %}
-{% set table_headers=["Date", "Motif", "Notes sur le rendez-vous"] %}
-{% set table_content=["date", "motive", "notes"] %}
-{% set items=appointments %}
-{% set form_action=url_for('appointment.create') %}
-{% set delete_action=url_for('appointment.delete') %}
-{% set form_fields=[
-    {"label": "Motif", "input": '<input type="text" name="motive" class="col-md-12">'},
-    {"label": "Notes", "input": '<textarea rows="4" name="notes" class="col-md-12"></textarea>'},
-    {"input": '<input type="number" name="healer" value="{{ user.id }}" hidden>'}
-    ] %}
-{% include 'section.html' %}
-{% endif %}
 
 <script>
     let currentDate = new Date();
