@@ -1,0 +1,107 @@
+Table user {
+  id integer [pk]
+  name varchar
+  email varchar
+  password varchar
+  role integer [not null, ref: > role.id]
+}
+
+Table patient {
+  id integer [pk]
+  lastname varchar
+  firstname varchar
+  added date
+  birth date
+  arrival date
+  gender varchar
+  phone varchar
+  email varchar
+  nationality varchar
+  addressed_by varchar
+  treatment varchar
+  vaccination varchar
+  history text
+  notes text
+}
+
+Table residency {
+  id integer [pk]
+  date date
+  patient integer [not null, ref: > patient.id]
+  city integer [ref: > city.id]
+  accommodation integer [ref: > accommodation.id]
+  address varchar
+  notes text
+}
+
+Table consultation {
+  id integer [pk]
+  date date
+  patient integer [not null, ref: > patient.id]
+  healer integer [not null, ref: > user.id]
+  motive varchar
+  notes text
+  location varchar
+}
+
+Table appointment {
+  id integer [pk]
+  date date
+  patient integer [not null, ref: > patient.id]
+  healer integer [not null, ref: > user.id]
+  motive varchar
+  notes text
+}
+
+Table prescription {
+  id integer [pk]
+  date date
+  consultation integer [not null, ref: > consultation.id]
+  drugstore integer [not null, ref: > drugstore.id]
+  qty integer
+  posology text
+  notes text
+  given boolean
+}
+
+Table orientation {
+  id integer [pk]
+  date date
+  consultation integer [not null, ref: > consultation.id]
+  specialist varchar
+  notes text
+}
+
+Table coverage {
+  id integer [pk]
+  date date
+  patient integer [not null, ref: > patient.id]
+  current varchar
+  notes varchar
+}
+
+Table role {
+  id integer [pk]
+  name varchar
+}
+
+Table drugstore {
+  id integer [pk]
+  name varchar
+  qty integer
+}
+
+Table specialist {
+  id integer [pk]
+  name varchar
+}
+
+Table city {
+  id integer [pk]
+  name varchar
+}
+
+Table accommodation {
+  id integer [pk]
+  name varchar
+}
