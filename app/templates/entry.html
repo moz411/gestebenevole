@@ -91,7 +91,7 @@
             <h4>Consultations</h4>
             </p>
         </div>
-        {% if user.role in [1,6] %}
+        {% if user.can_create('consultation') %}
         <div class="p-2">
             <p>
             <form method="post" action="{{ url_for('consultation.update')  }}">
@@ -116,7 +116,7 @@
         </tr>
     <tbody>
         {% for consultation in consultations %}
-        {% if user.role in [1,6] %}
+        {% if user.can_create('consultation') %}
         <tr class="clickable-row" data-href="{{ url_for('consultation.update') }}/{{consultation.id}}">
         {% else %}
         <tr>
@@ -163,7 +163,7 @@
 {% include 'section.html' %}
 {% endif %}
 
-{% if user.role == 4 %}
+{% if user.can_create('appointment') %}
 {% set title="Assistance sociale" %}
 {% set popup="appointments" %}
 {% set table_headers=["Date", "Motif", "Notes sur le rendez-vous"] %}

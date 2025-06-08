@@ -2,6 +2,7 @@ import re
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from flask_login import login_required, current_user
+from .roles import Role
 from sqlalchemy import sql
 from .models import db
 
@@ -103,7 +104,7 @@ def generate_rows(model_class, payload):
     for col in model_class.__table__.columns:
         value = getattr(data, col.name)
         required = "required" if col.nullable == False else ""
-        if col.name == 'id' or (col.name in ["history", "vaccination"] and current_user.role not in [1,6]):
+        if col.name == 'id' or (col.name in ["history", "vaccination"] and not current_user.has_role(Role.ADMIN, Role.DOCTOR)):
             continue
         elif str(col.type) == 'INTEGER':
             if model_class.__tablename__ == 'drugstore':

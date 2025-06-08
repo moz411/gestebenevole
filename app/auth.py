@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required
 from .models import User
+from .roles import Role
 
 auth = Blueprint('auth', __name__)
 
@@ -23,7 +24,7 @@ def login_post():
         return redirect(url_for('auth.login')) 
 
     login_user(user, remember=True)
-    if user.role == 3:
+    if user.has_role(Role.PHARMACIST):
         return redirect(url_for('drugstore.all'))
     else:
         return redirect(url_for('patient.all'))
