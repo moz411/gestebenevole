@@ -3,6 +3,9 @@
 from flask_login import UserMixin
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Text, Boolean
 
+from . import rbac
+from .roles import Role
+
 from . import db
 
 class User(UserMixin, db.Model):
@@ -12,6 +15,17 @@ class User(UserMixin, db.Model):
     email = Column(String, nullable=False, info={'name': 'Email', 'list': 'visible'})
     password = Column(String, nullable=False, info={'name': 'Mot de passe'})
     role = Column(Integer, ForeignKey('role.id'), nullable=False, info={'name': 'Rôle', 'list': 'visible'})
+
+    # RBAC helper methods
+    def has_role(self, *roles):
+        allowed = [r.value if isinstance(r, Role) else r for r in roles]
+        return self.role in allowed
+
+    def can_create(self, table):
+        return rbac.can_create(self, table)
+
+    def can_view_nav(self, item):
+        return rbac.can_view_nav(self, item)
 
 class Patient(db.Model):
     __tablename__ = 'patient'

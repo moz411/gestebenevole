@@ -7,7 +7,7 @@
             {% for key, value in columns %}
             <th>{{ value  }}</th>
             {% endfor %}
-            {% if table in ['user', 'patient', 'drugstore'] and user.role in [1,2,3,6] %}
+            {% if user.can_create(table) %}
             <th class="col-md-1">
                 <a href="{{ url_for( table + '.update')}}"><button class="btn btn-primary mb-2" >Ajouter</button></a>
             </th>
