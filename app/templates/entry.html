@@ -54,11 +54,7 @@
 
 
 {% for section in sections %}
-{% include 'section.html' with title=section.title, popup=section.popup,
-    table_headers=section.table_headers, table_content=section.table_content,
-    items=section.items, form_action=section.form_action, delete_action=section.delete_action,
-    name=section.name, form_fields=section.form_fields, print_url=section.print_url,
-    print_items=section.print_items %}
+{% include 'section.html' %}
 {% endfor %}
 <div class="container-fluid">
     <div class="d-flex justify-content-between">
@@ -104,9 +100,6 @@
         {% endfor %}
     </tbody>
 </table>
-
-{% endif %}
-                    <!-- {"label": "Médicament", "input": drugstore | safe},  -->
 
 <script>
     let currentDate = new Date();

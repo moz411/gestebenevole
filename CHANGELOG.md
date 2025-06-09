@@ -110,4 +110,4 @@ fiche patient :
 - ~~ajouter requête "Consultations" avec les champs "date	firstname	lastname	birth	location"~~
 - ~~corriger bug "url_for_logout"~~
 - ~~retirer "notes" de la requête "Orientations"~~
-- ajouter le module datasette-render-xlsx
+- ~~ajouter le module datasette-render-xlsx~~
