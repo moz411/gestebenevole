@@ -1,12 +1,12 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between">
         <div class="p-2">
-            <p><h4>{{ title }}</h4></p>
+            <p><h4>{{ section.title }}</h4></p>
         </div>
         <div class="p-2">
-            <p><button class="btn btn-primary" onclick="showForm('{{ popup }}')">Ajouter</button>
-            {% if print_url %}
-            <button class="btn btn-primary" onclick="window.open('{{ print_url }}')">Imprimer</button>
+            <p><button class="btn btn-primary" onclick="showForm('{{ section.popup }}')">Ajouter</button>
+            {% if section.print_url %}
+            <button class="btn btn-primary" onclick="window.open('{{ section.print_url }}')">Imprimer</button>
             {% endif %}
             </p>
         </div>
@@ -16,27 +16,27 @@
 <table class="table">
     <thead>
         <tr>
-            {% for header in table_headers %}
+            {% for header in section.table_headers %}
             <th class="col-md-1">{{ header }}</th>
             {% endfor %}
         </tr>
     </thead>
     <tbody>
-        {% for item in items %}
+        {% for row in section.rows %}
         <tr>
-            {% for column in table_content %}
-            <td class="col-md-1 {{ column }}">{{ item[column] }}</td>
+            {% for column in section.table_content %}
+            <td class="col-md-1 {{ column }}">{{ row[column] }}</td>
             {% endfor %}
-            {% if print_items %}
+            {% if section.print_items %}
             <td class="col-md-1">
-                {% set print_url=url_for('consultation.print_orientation', orientation_id=item.id) %}
+                {% set print_url=url_for('consultation.print_orientation', orientation_id=row.id) %}
                 <button class="btn btn-primary" onclick="window.open('{{ print_url }}')">Imprimer</button>
             </td>
             {% endif %}
             {% if deletable %}
             <td class="col-md-1">
                 <form action="{{ delete_action }}" method="post">
-                    <input type="number" name="id" value="{{ item.id }}" hidden>
+                    <input type="number" name="id" value="{{ row.id }}" hidden>
                     <button type="submit" class="btn btn-danger">Supprimer</button>
                 </form>
             </td>
@@ -46,20 +46,20 @@
     </tbody>
 </table>
 
-<div class="modal-overlay" id="{{ popup }}">
+<div class="modal-overlay" id="{{ section.popup }}">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Ajouter {{ title | lower }}</h5>
-                <button type="button" class="close" onclick="hideForm('{{ popup }}')">&times;</button>
+                <h5 class="modal-title">Ajouter {{ section.title | lower }}</h5>
+                <button type="button" class="close" onclick="hideForm('{{ section.popup }}')">&times;</button>
             </div>
             <div class="modal-body">
-                <form action="{{ form_action }}" method="post" onsubmit="hideForm('{{ popup }}')">
-                    <input type="number" name="{{ name }}" value="{{ id }}" hidden> 
+                <form action="{{ section.form_action }}" method="post" onsubmit="hideForm('{{ section.popup }}')">
+                    <input type="number" name="{{ section.name }}" value="{{ id }}" hidden> 
                     <input type="text" name="date" id="currentDate" hidden>
                     <table class="table">
                         <tbody>
-                            {% for field in form_fields %}
+                            {% for field in section.form_fields %}
                             <tr>
                                 <td>{{ field.label }}</td>
                                 <td>{{ field.input | safe }}</td>

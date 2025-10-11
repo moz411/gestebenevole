@@ -110,4 +110,17 @@ fiche patient :
 - ~~ajouter requête "Consultations" avec les champs "date	firstname	lastname	birth	location"~~
 - ~~corriger bug "url_for_logout"~~
 - ~~retirer "notes" de la requête "Orientations"~~
-- ajouter le module datasette-render-xlsx
+- ~~ajouter le module datasette-render-xlsx~~
+
+11/10/25
+- doublons bdd
+    - patient test 966
+    - table consultation -> entrées sans notes ni motifs
+    - patients en doublon
+- rendre champ "location" obligatoire
+- remplacer "notes sur le patient" par
+  - "notes réservées au médecin"
+  - "notes pour les accueillant.es"
+- dans Datasette -> ajouter droits RBAC
+  - masquer la table "appointments"
+  - "motifs" et "notes de la table "consultation"

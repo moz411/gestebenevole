@@ -13,135 +13,6 @@ import locale
 locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 today = datetime.now().strftime('%d %b %Y')
 
-
-def build_sections(table, payload, user):
-    sections = []
-    id = payload.get('id')
-
-    if table == 'patient' and id:
-        sections.append({
-            'title': 'Résidence',
-            'popup': 'residency',
-            'table_headers': ['Date', 'Ville', 'Nature hébergement', 'Adresse', 'Notes'],
-            'table_content': ['date', 'city', 'accommodation', 'address', 'notes'],
-            'items': payload.get('residencies'),
-            'form_action': url_for('residency.create'),
-            'delete_action': url_for('residency.delete'),
-            'name': 'patient',
-            'form_fields': [
-                {'label': 'Ville', 'input': payload.get('cities')},
-                {'label': 'Nature Hébergement', 'input': payload.get('accommodations')},
-                {'label': 'Adresse', 'input': '<input type="text" name="address" class="col-md-12">'},
-                {'label': 'Notes', 'input': '<input type="text" name="notes" class="col-md-12">'}
-            ],
-            'print_url': False,
-            'print_items': False,
-        })
-
-        sections.append({
-            'title': 'Droits sociaux',
-            'popup': 'coverage',
-            'table_headers': ['Date', 'Droits sociaux', 'Notes'],
-            'table_content': ['date', 'current', 'notes'],
-            'items': payload.get('coverages'),
-            'form_action': url_for('coverage.create'),
-            'delete_action': url_for('coverage.delete'),
-            'name': 'patient',
-            'form_fields': [
-                {
-                    'label': 'Couverture',
-                    'input': (
-                        '<select name="current" class="col-md-12">'
-                        '<option disabled selected value="default">Sélectionner</option>'
-                        '<option value="oui">Oui</option>'
-                        '<option value="non">Non</option>'
-                        '<option value="inprogress">En cours</option>'
-                        '</select>'
-                    ),
-                },
-                {'label': 'Notes', 'input': '<input type="text" name="notes" class="col-md-12">'},
-            ],
-            'print_url': False,
-            'print_items': False,
-        })
-
-    if table == 'consultation' and id:
-        sections.append({
-            'title': 'Prescription médicaments',
-            'popup': 'prescription',
-            'table_headers': [
-                'Date',
-                'Médicament',
-                "Nombre d'unités",
-                'Notes',
-                'Posologie',
-                'Remis',
-            ],
-            'table_content': ['date', 'drugstore', 'qty', 'notes', 'posology', 'given'],
-            'items': payload.get('prescriptions'),
-            'form_action': url_for('prescription.create'),
-            'delete_action': url_for('prescription.delete'),
-            'name': 'consultation',
-            'form_fields': [
-                {'label': 'Médicament', 'input': payload.get('drugstore')},
-                {
-                    'label': "Nombre d'unités",
-                    'input': '<input type="number" name="qty" min="1" max="100" required>',
-                },
-                {'label': 'Notes', 'input': '<input type="text" name="notes" class="col-md-12">'},
-                {'label': 'Posologie', 'input': '<input type="text" name="posology" class="col-md-12">'},
-                {'label': 'Remis', 'input': '<input type="checkbox" name="given">'},
-            ],
-            'print_url': url_for('consultation.print_prescriptions', consultation_id=id),
-            'print_items': False,
-        })
-
-        sections.append({
-            'title': 'Orientations',
-            'popup': 'orientations',
-            'table_headers': ['Date', 'Spécialiste', 'Notes'],
-            'table_content': ['date', 'specialist', 'notes'],
-            'items': payload.get('orientations'),
-            'form_action': url_for('orientation.create'),
-            'delete_action': url_for('orientation.delete'),
-            'name': 'consultation',
-            'form_fields': [
-                {'label': 'Spécialiste', 'input': payload.get('specialists')},
-                {
-                    'label': 'Notes',
-                    'input': '<textarea rows="4" name="notes" class="col-md-12"></textarea>',
-                },
-            ],
-            'print_url': False,
-            'print_items': True,
-        })
-
-    if table == 'patient' and id and user and user.can_create('appointment'):
-        sections.append({
-            'title': 'Assistance sociale',
-            'popup': 'appointments',
-            'table_headers': ['Date', 'Motif', 'Notes sur le rendez-vous'],
-            'table_content': ['date', 'motive', 'notes'],
-            'items': payload.get('appointments'),
-            'form_action': url_for('appointment.create'),
-            'delete_action': url_for('appointment.delete'),
-            'name': 'patient',
-            'form_fields': [
-                {'label': 'Motif', 'input': '<input type="text" name="motive" class="col-md-12">'},
-                {
-                    'label': 'Notes',
-                    'input': '<textarea rows="4" name="notes" class="col-md-12"></textarea>',
-                },
-                {
-                    'input': f'<input type="number" name="healer" value="{user.id}" hidden>'
-                },
-            ],
-            'print_url': False,
-            'print_items': False,
-        })
-
-    return sections
-
 def create_blueprint_for_model(model_class):
     blueprint = Blueprint(model_class.__tablename__, __name__)
 
@@ -210,7 +81,7 @@ def create_blueprint_for_model(model_class):
         else:
             # Generate the form fields.
             payload['rows'] = utils.generate_rows(model_class, payload)
-            payload['sections'] = build_sections(model_class.__tablename__, payload, current_user)
+            payload['sections'] = utils.build_sections(model_class.__tablename__, payload, current_user)
             if hasattr(payload['data'], 'date') and payload['data'].date == datetime.now().date():
                 payload['deletable'] = True
                 payload['today'] = True
