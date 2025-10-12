@@ -43,7 +43,8 @@ class Patient(db.Model):
     treatment = Column(String, info={'name': 'Traitement en cours'})
     vaccination = Column(String, info={'name': 'Vaccination'})
     history = Column(Text, info={'name': 'ATCD'})
-    notes = Column(Text, info={'name': 'Notes sur le patient', 'list': 'visible'})
+    notes = Column(Text, info={'name': 'Notes réservées au médecin'})
+    infos = Column(Text, info={'name': 'Notes pour les accueillant.es', 'list': 'visible'})
     
 class Residency(db.Model):
     __tablename__ = 'residency'

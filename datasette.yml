@@ -8,6 +8,14 @@ databases:
   gestebenevole:
     allow:
       id: admin
+    allow_sql: false
+    tables:
+      consultation:
+        allow: false
+      patient:
+        allow: false
+      appointment:
+        allow: false
     queries:
       Prescriptions:
         hide_sql: true

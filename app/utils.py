@@ -105,7 +105,7 @@ def generate_rows(model_class, payload):
     for col in model_class.__table__.columns:
         value = getattr(data, col.name)
         required = "required" if col.nullable == False else ""
-        if col.name == 'id' or (col.name in ["history", "vaccination"] and not current_user.has_role(Role.ADMIN, Role.DOCTOR)):
+        if col.name == 'id' or (col.name in ["history", "vaccination", "notes", "treatment"] and not current_user.has_role(Role.DOCTOR)):
             continue
         elif str(col.type) == 'INTEGER':
             if model_class.__tablename__ == 'drugstore':
