@@ -118,9 +118,9 @@ fiche patient :
     - table consultation -> entrées sans notes ni motifs
     - patients en doublon
 - rendre champ "location" obligatoire
-- remplacer "notes sur le patient" par
-  - "notes réservées au médecin"
-  - "notes pour les accueillant.es"
-- dans Datasette -> ajouter droits RBAC
-  - masquer la table "appointments"
-  - "motifs" et "notes de la table "consultation"
+- ~~remplacer "notes sur le patient" par~~
+  ~~- "notes réservées au médecin"~~
+  ~~- "notes pour les accueillant.es"~~
+- ~~dans Datasette -> ajouter droits RBAC~~
+  ~~- masquer la table "appointments"~~
+  ~~- "motifs" et "notes de la table "consultation"~~
