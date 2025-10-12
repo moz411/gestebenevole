@@ -42,7 +42,7 @@ RUN chmod +x /entrypoint.py \
     && cp -a /usr/share/mime /opt/distroless/usr/share/ \
     && cp -a /usr/lib/locale/fr_FR.utf8 /opt/distroless/usr/lib/locale/
 
-FROM gcr.io/distroless/python3.13-debian12
+FROM gcr.io/distroless/python3-debian12
 
 ENV PYTHONUNBUFFERED=1 \
     LANG=fr_FR.UTF-8 \
