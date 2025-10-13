@@ -58,6 +58,7 @@ if (drugstoreSearch) {
     );
 }
 
+
 // auto-logout
 var maxIdleTime = 900000;
 var logoutUrl = "/logout";

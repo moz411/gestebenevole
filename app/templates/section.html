@@ -35,7 +35,7 @@
             {% endif %}
             {% if deletable %}
             <td class="col-md-1">
-                <form action="{{ delete_action }}" method="post">
+                <form action="{{ section.delete_action }}" method="post">
                     <input type="number" name="id" value="{{ row.id }}" hidden>
                     <button type="submit" class="btn btn-danger">Supprimer</button>
                 </form>
