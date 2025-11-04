@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, date
+from datetime import datetime, date, time
 from dateutil.relativedelta import relativedelta
 from flask import url_for
 from flask_login import login_required, current_user
@@ -42,13 +42,32 @@ def retreive(table, column, id):
 def convert_form_data(form_data):
     form_data = form_data.to_dict()
     isoformat_regex = r'^\d{4}-\d{2}-\d{2}'
-    dates = {key: datetime.strptime(value, '%Y-%m-%d').date() 
+    dates = {key: datetime.strptime(value, '%Y-%m-%d').date()
                  for key, value in form_data.items()  if re.match(isoformat_regex, value)}
     form_data.update(dates)
     bools = {key: True if value in ['true','on'] else False 
                  for key, value in form_data.items() if value in ['true','on']}
     form_data.update(bools)
     return form_data
+
+
+def determine_consultation_location(current_datetime=None):
+    """Return the automatic location for a consultation based on the creation datetime."""
+
+    current_datetime = current_datetime or datetime.now()
+    weekday = current_datetime.weekday()
+
+    if weekday == 0:  # Monday
+        return "IPS"
+    if weekday == 1:  # Tuesday
+        return "ES"
+    if weekday == 3:  # Thursday
+        noon = time(12, 0)
+        if current_datetime.time() < noon:
+            return "Elancourt"
+        return "IPS"
+
+    return None
 
 def append_select(col, rows, foreign_id):
     text = sql.text(f"SELECT id, name FROM {col.name}")
@@ -144,13 +163,10 @@ def generate_rows(model_class, payload):
                              <option value="F" { "selected" if value == "F" else "" }>Féminin</option>
                              <option value="A" { "selected" if value == "A" else "" }>Autre</option></select>'''))
             elif col.name in ['location']:
-                rows.append((col.info.get('name'), f'''<select name="{col.name}" class="col-md-2">
-                             <option disabled selected>Sélectionner</option>
-                             <option value="ES" { "selected" if value == "ES" else "" }>Espace Solidarité</option>
-                             <option value="IPS" { "selected" if value == "IPS" else "" }>IPS</option>
-                             <option value="Elancourt" { "selected" if value == "Elancourt" else "" }>Elancourt</option>'''))
+                display_value = value if value else ""
+                rows.append((col.info.get('name'), f'<input type="text" name="{col.name}" value="{display_value}" {required} class="col-md-12"></input>'))
             else:
-                rows.append((col.info.get('name'), f'<input type="text" name="{col.name}" value="{value}" {required} class="col-md-12"></input>')) 
+                rows.append((col.info.get('name'), f'<input type="text" name="{col.name}" value="{value}" {required} class="col-md-12"></input>'))
         elif str(col.type) == 'TEXT':
             if value:
                 rows.append((col.info.get('name'), f'<textarea rows="4" name="{col.name}" {required} class="col-md-12">{value}</textarea>')) 

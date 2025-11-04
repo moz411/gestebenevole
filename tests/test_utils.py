@@ -2,7 +2,7 @@ import importlib.util
 import os
 import sys
 import types
-from datetime import date
+from datetime import date, datetime
 
 # Ensure the application package is on the path
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -60,3 +60,17 @@ def test_append_select_3_builds_html():
     assert 'id="drugstore-search"' in html
     assert 'name="drugstore"' in html
     assert 'id="drugstore-table"' in html
+
+
+def test_determine_consultation_location():
+    monday_morning = datetime(2023, 4, 3, 9, 0)
+    tuesday_afternoon = datetime(2023, 4, 4, 15, 30)
+    thursday_morning = datetime(2023, 4, 6, 10, 0)
+    thursday_afternoon = datetime(2023, 4, 6, 13, 0)
+    sunday = datetime(2023, 4, 2, 10, 0)
+
+    assert utils.determine_consultation_location(monday_morning) == 'IPS'
+    assert utils.determine_consultation_location(tuesday_afternoon) == 'ES'
+    assert utils.determine_consultation_location(thursday_morning) == 'Elancourt'
+    assert utils.determine_consultation_location(thursday_afternoon) == 'IPS'
+    assert utils.determine_consultation_location(sunday) is None

@@ -69,9 +69,9 @@ def create_blueprint_for_model(model_class):
                 if hasattr(payload['data'], key):
                     setattr(payload['data'], key, form_data[key])
             db.session.commit()
-            
+
             return redirect(url_for(f"{model_class.__tablename__}.all"))
-        
+
         # Create a new entry if the form is submitted.
         elif not id and request.method == 'POST':
             new_entry = model_class(**form_data)
@@ -80,6 +80,10 @@ def create_blueprint_for_model(model_class):
             return redirect(url_for(f"{payload['table']}.update") + "/" + repr(new_entry.id))
         else:
             # Generate the form fields.
+            if not id and model_class.__tablename__ == 'consultation':
+                location = utils.determine_consultation_location()
+                if location and hasattr(payload['data'], 'location'):
+                    setattr(payload['data'], 'location', getattr(payload['data'], 'location') or location)
             payload['rows'] = utils.generate_rows(model_class, payload)
             payload['sections'] = utils.build_sections(model_class.__tablename__, payload, current_user)
             if hasattr(payload['data'], 'date') and payload['data'].date == datetime.now().date():
