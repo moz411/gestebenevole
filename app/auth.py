@@ -24,7 +24,9 @@ def login_post():
         return redirect(url_for('auth.login')) 
 
     login_user(user, remember=True)
-    if user.has_role(Role.PHARMACIST):
+    if user.has_role(Role.ADMIN):
+        return redirect(url_for('user.all'))
+    elif user.has_role(Role.PHARMACIST):
         return redirect(url_for('drugstore.all'))
     else:
         return redirect(url_for('patient.all'))

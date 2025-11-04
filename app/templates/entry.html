@@ -56,7 +56,7 @@
 {% for section in sections %}
 {% include 'section.html' %}
 {% endfor %}
-{% if table == 'patient' %}
+{% if id and table == 'patient' %}
 <div class="container-fluid">
     <div class="d-flex justify-content-between">
         <div class="p-2">
