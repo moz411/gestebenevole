@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import json
+import logging
 from flask import Blueprint, request, render_template, redirect, url_for, make_response
 from flask_login import login_required, current_user
 from sqlalchemy import desc, sql
@@ -74,6 +75,8 @@ def create_blueprint_for_model(model_class):
         
         # Create a new entry if the form is submitted.
         elif not id and request.method == 'POST':
+            if model_class.__tablename__ == 'consultation':
+                form_data["location"] = utils.determine_consultation_location()
             new_entry = model_class(**form_data)
             db.session.add(new_entry)
             db.session.commit()

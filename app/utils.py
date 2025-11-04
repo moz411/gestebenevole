@@ -50,6 +50,24 @@ def convert_form_data(form_data):
     form_data.update(bools)
     return form_data
 
+def determine_consultation_location():
+    """Return the automatic location for a consultation based on the creation datetime."""
+
+    current_datetime = datetime.now()
+    weekday = current_datetime.weekday()
+
+    if weekday == 0:  # Monday
+        return "IPS"
+    if weekday == 1:  # Tuesday
+        return "ES"
+    if weekday == 3:  # Thursday
+        noon = time(12, 0)
+        if current_datetime.time() < noon:
+            return "Elancourt"
+        return "IPS"
+
+    return None
+
 def append_select(col, rows, foreign_id):
     text = sql.text(f"SELECT id, name FROM {col.name}")
     results = db.session.execute(text)
