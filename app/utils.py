@@ -56,16 +56,15 @@ def determine_consultation_location():
     current_datetime = datetime.now()
     weekday = current_datetime.weekday()
 
-    if weekday == 0:  # Monday
-        return "IPS"
-    if weekday == 1:  # Tuesday
+    if weekday == 2:  # Wednesday
         return "ES"
     if weekday == 3:  # Thursday
         noon = time(12, 0)
         if current_datetime.time() < noon:
             return "Elancourt"
         return "IPS"
-
+    if weekday == 4:  # Friday
+        return "IPS"
     return None
 
 def append_select(col, rows, foreign_id):
