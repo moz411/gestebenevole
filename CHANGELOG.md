@@ -117,10 +117,13 @@ fiche patient :
     - patient test 966
     - table consultation -> entrées sans notes ni motifs
     - patients en doublon
-- rendre champ "location" obligatoire
+- ~~rendre champ "location" obligatoire~~
 - ~~remplacer "notes sur le patient" par~~
   ~~- "notes réservées au médecin"~~
   ~~- "notes pour les accueillant.es"~~
 - ~~dans Datasette -> ajouter droits RBAC~~
   ~~- masquer la table "appointments"~~
   ~~- "motifs" et "notes de la table "consultation"~~
+
+24/11/2025
+- ~~Accès lecture seule aux fiches patients pour les profils admin et pharmacien~~
