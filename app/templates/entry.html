@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 
+{% if can_write %}
     {% if id and table in [ 'patient', 'consultation'] %}
     <form id="dynamicForm">
     {% elif id and table in ['user', 'drugstore', 'appointment'] %}
     <form method="post" action="{{ url_for( table + '.update')  }}/{{ id }}">
     {% else %}
     <form method="post" action="{{ url_for( table + '.create') }}">
-        {% endif %}
+    {% endif %}
+{% else %}
+    <form id="dynamicForm">
+{% endif %}
         <table class="table">
             <tbody>
                 {% for key, value in rows %}
@@ -25,12 +29,12 @@
                 {% endfor %}
             </tbody>
         </table>
-        {% if (table in ['user', 'drugstore', 'appointment']) or (not id and table in ['patient']) %}
+        {% if can_write and ((table in ['user', 'drugstore', 'appointment']) or (not id and table in ['patient'])) %}
         <div class="d-flex justify-content-center">
             <input type="submit" class="btn btn-primary mb-2" value="Soumettre">
         </div>
     </form>
-    {% else %}
+    {% elif can_write %}
     </form>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -49,6 +53,8 @@
         xhr.send(formData);
     }
     </script>
+    {% else %}
+    </form>
     {% endif %}
     <br>
 

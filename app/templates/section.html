@@ -4,7 +4,10 @@
             <p><h4>{{ section.title }}</h4></p>
         </div>
         <div class="p-2">
-            <p><button class="btn btn-primary" onclick="showForm('{{ section.popup }}')">Ajouter</button>
+            <p>
+            {% if section.writable %}
+            <button class="btn btn-primary" onclick="showForm('{{ section.popup }}')">Ajouter</button>
+            {% endif %}
             {% if section.print_url %}
             <button class="btn btn-primary" onclick="window.open('{{ section.print_url }}')">Imprimer</button>
             {% endif %}
@@ -33,7 +36,7 @@
                 <button class="btn btn-primary" onclick="window.open('{{ print_url }}')">Imprimer</button>
             </td>
             {% endif %}
-            {% if deletable %}
+            {% if deletable and section.writable %}
             <td class="col-md-1">
                 <form action="{{ section.delete_action }}" method="post">
                     <input type="number" name="id" value="{{ row.id }}" hidden>
@@ -46,6 +49,7 @@
     </tbody>
 </table>
 
+{% if section.writable %}
 <div class="modal-overlay" id="{{ section.popup }}">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -55,7 +59,7 @@
             </div>
             <div class="modal-body">
                 <form action="{{ section.form_action }}" method="post" onsubmit="hideForm('{{ section.popup }}')">
-                    <input type="number" name="{{ section.name }}" value="{{ id }}" hidden> 
+                    <input type="number" name="{{ section.name }}" value="{{ id }}" hidden>
                     <input type="text" name="date" id="currentDate" hidden>
                     <table class="table">
                         <tbody>
@@ -73,3 +77,4 @@
         </div>
     </div>
 </div>
+{% endif %}
