@@ -9,7 +9,11 @@ class PermissionMatrix:
         'patient': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER],
         'drugstore': [Role.PHARMACIST],
         'consultation': [Role.DOCTOR],
-        'appointment': [Role.SOCIAL_WORKER]
+        'prescription': [Role.DOCTOR],
+        'orientation': [Role.DOCTOR],
+        'appointment': [Role.SOCIAL_WORKER],
+        'residency': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER],
+        'coverage': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER]
     }
 
     read = {
