@@ -27,6 +27,9 @@ class User(UserMixin, db.Model):
     def can_read(self, item):
         return rbac.can_read(self, item)
 
+    def can_write(self, table):
+        return rbac.can_write(self, table)
+
 class Patient(db.Model):
     __tablename__ = 'patient'
     id = Column(Integer, primary_key=True)

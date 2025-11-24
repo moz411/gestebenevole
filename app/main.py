@@ -2,7 +2,7 @@
 
 from datetime import datetime
 import json
-from flask import Blueprint, request, render_template, redirect, url_for, make_response
+from flask import Blueprint, request, render_template, redirect, url_for, make_response, abort
 from flask_login import login_required, current_user
 from sqlalchemy import desc, sql
 from weasyprint import HTML
@@ -19,6 +19,8 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/create', methods=['POST'])
     @login_required
     def create():
+        if not current_user.can_write(model_class.__tablename__):
+            return abort(403)
         form_data = utils.convert_form_data(request.form)
         new_entry = model_class(**form_data)
         db.session.add(new_entry)
@@ -41,6 +43,8 @@ def create_blueprint_for_model(model_class):
     @blueprint.route('/delete', defaults={ 'id': None }, methods=['POST'])
     @login_required
     def delete(id):
+        if not current_user.can_write(model_class.__tablename__):
+            return abort(403)
         id = request.form.get('id')
         if id:
             entry = model_class.query.get(id)
@@ -49,21 +53,27 @@ def create_blueprint_for_model(model_class):
         return redirect(request.referrer + '#bottom')
         
     
-    @blueprint.route('/update', defaults={ 'id': None }, methods=['GET','POST'])    
+    @blueprint.route('/update', defaults={ 'id': None }, methods=['GET','POST'])
     @blueprint.route('/update/<id>', methods=['GET','POST'])
     @login_required
     def update(id):
+        can_write = current_user.can_write(model_class.__tablename__)
         payload = {'table': model_class.__tablename__,
                    'data':  model_class.query.get(id) if id else model_class(),
                    'user': current_user,
                    'deletable': False,
                    'today': False,
                    'id': id,
-                   'columns': []}
+                   'columns': [],
+                   'can_write': can_write,
+                   'read_only': not can_write}
         # Replace text by Python datetime object.
         form_data = utils.convert_form_data(request.form)
 
         # Update the entry if the form is submitted.
+        if request.method == 'POST' and not can_write:
+            return abort(403)
+
         if id and request.method == 'POST':
             for key in form_data:
                 if hasattr(payload['data'], key):
@@ -84,7 +94,7 @@ def create_blueprint_for_model(model_class):
             # Generate the form fields.
             payload['rows'] = utils.generate_rows(model_class, payload)
             payload['sections'] = utils.build_sections(model_class.__tablename__, payload, current_user)
-            if hasattr(payload['data'], 'date') and payload['data'].date == datetime.now().date():
+            if hasattr(payload['data'], 'date') and payload['data'].date == datetime.now().date() and can_write:
                 payload['deletable'] = True
                 payload['today'] = True
             # Update the "viewed" field for patient

@@ -28,3 +28,6 @@ def can_read(user, table):
     allowed = PermissionMatrix.read.get(table, [])
     return user is not None and user.role in allowed
 
+def can_write(user, table):
+    return can_create(user, table)
+
