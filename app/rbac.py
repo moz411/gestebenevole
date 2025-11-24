@@ -6,7 +6,7 @@ from .roles import Role
 class PermissionMatrix:
     create = {
         'user': [Role.ADMIN],
-        'patient': [Role.RECEPTION, Role.DOCTOR],
+        'patient': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER],
         'drugstore': [Role.PHARMACIST],
         'consultation': [Role.DOCTOR],
         'appointment': [Role.SOCIAL_WORKER]
