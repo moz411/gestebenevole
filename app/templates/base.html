@@ -53,17 +53,17 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        {% if user.can_view_nav('user') %}
+        {% if user.can_read('user') %}
         <li class="nav-item {% if table == 'user' %}active{% endif %}">
           <a class="nav-link" href="{{ url_for('user.all') }}">Utilisateurs</a>
         </li>
         {% endif %}
-        {% if user.can_view_nav('patient') %}
+        {% if user.can_read('patient') %}
         <li class="nav-item {% if table == 'patient' %}active{% endif %}">
           <a class="nav-link" href="{{ url_for('patient.all') }}">Patients</a>
         </li>
         {% endif %}
-        {% if user.can_view_nav('drugstore') %}
+        {% if user.can_read('drugstore') %}
         <li class="nav-item {% if table == 'drugstore' %}active{% endif %}">
           <a class="nav-link" href="{{ url_for('drugstore.all') }}">Pharmacie</a>
         </li>

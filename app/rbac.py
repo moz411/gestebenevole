@@ -12,18 +12,19 @@ class PermissionMatrix:
         'appointment': [Role.SOCIAL_WORKER]
     }
 
-    navbar = {
+    read = {
         'user': [Role.ADMIN],
-        'patient': [Role.RECEPTION, Role.SOCIAL_WORKER, Role.DOCTOR],
-        'drugstore': [Role.PHARMACIST]
+        'patient': [Role.ADMIN, Role.RECEPTION, Role.SOCIAL_WORKER, Role.DOCTOR, Role.PHARMACIST],
+        'drugstore': [Role.PHARMACIST],
+        'consultation': [Role.DOCTOR],
+        'appointment': [Role.SOCIAL_WORKER]
     }
-
 
 def can_create(user, table):
     allowed = PermissionMatrix.create.get(table, [])
     return user is not None and user.role in allowed
 
-
-def can_view_nav(user, item):
-    allowed = PermissionMatrix.navbar.get(item, [])
+def can_read(user, table):
+    allowed = PermissionMatrix.read.get(table, [])
     return user is not None and user.role in allowed
+

@@ -24,8 +24,8 @@ class User(UserMixin, db.Model):
     def can_create(self, table):
         return rbac.can_create(self, table)
 
-    def can_view_nav(self, item):
-        return rbac.can_view_nav(self, item)
+    def can_read(self, item):
+        return rbac.can_read(self, item)
 
 class Patient(db.Model):
     __tablename__ = 'patient'
