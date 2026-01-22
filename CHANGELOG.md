@@ -127,3 +127,8 @@ fiche patient :
 
 24/11/2025
 - ~~Accès lecture seule aux fiches patients pour les profils admin et pharmacien~~
+
+22/01/2016
+- Sorties CSV de plus de 1000 lignes
+- requête "Consultation sans pharmacie"
+- requête "Pharmacie nombre de médicaments (given / not given)"
