@@ -130,5 +130,8 @@ fiche patient :
 
 22/01/2016
 - Sorties CSV de plus de 1000 lignes
-- requête "Consultation sans pharmacie"
-- requête "Pharmacie nombre de médicaments (given / not given)"
+- requêtes:
+   - "Consultation sans pharmacie"
+   - "Pharmacie nombre de médicaments (given / not given)"
+   - "Patients sans résidence"
+   - "Patients sans droits sociaux"
