@@ -32,6 +32,8 @@ def create_app():
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
+    from .admin import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
     user_blueprint = create_blueprint_for_model(User)
     patient_blueprint = create_blueprint_for_model(Patient)
