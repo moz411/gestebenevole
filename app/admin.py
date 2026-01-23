@@ -13,16 +13,16 @@ from .roles import Role
 
 admin = Blueprint("admin", __name__)
 
-SENSITIVE_COLUMNS = {"lastname", "firstname", "name", "notes"}
-SENSITIVE_SUBSTRINGS = ("comment",)
-EXCLUDED_TABLES = {"appointment"}
+SENSITIVE_COLUMNS = {"treatment", "vaccination", "history", 
+                     "notes", "infos", "motive", "posology",
+                     "password"}
+EXCLUDED_TABLES = {"appointment", "drugstore"}
 
 
 def is_sensitive_column(column_name):
     normalized = column_name.lower()
     if normalized in SENSITIVE_COLUMNS:
         return True
-    return any(substring in normalized for substring in SENSITIVE_SUBSTRINGS)
 
 
 @admin.route("/export", methods=["GET"])
