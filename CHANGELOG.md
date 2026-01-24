@@ -129,9 +129,9 @@ fiche patient :
 - ~~Accès lecture seule aux fiches patients pour les profils admin et pharmacien~~
 
 22/01/2016
-- Sorties CSV de plus de 1000 lignes
-- requêtes:
-   - "Consultation sans pharmacie"
-   - "Pharmacie nombre de médicaments (given / not given)"
-   - "Patients sans résidence"
-   - "Patients sans droits sociaux"
+- ~~Sorties CSV de plus de 1000 lignes~~
+- ~~requêtes:~~
+   ~~- "Consultation sans pharmacie"~~
+   ~~- "Pharmacie nombre de médicaments (given / not given)"~~
+   ~~- "Patients sans résidence"~~
+   ~~- "Patients sans droits sociaux"~~
