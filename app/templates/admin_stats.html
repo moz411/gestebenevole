@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Statistiques</h1>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin.export_database') }}">
+      Télécharger la base complète
+    </a>
+  </div>
+
+  {% if queries %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Requête</th>
+          <th>Export CSV</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for query in queries %}
+        <tr>
+          <td>{{ query.name }}</td>
+          <td>
+            {% if query.sql %}
+            <a class="btn btn-sm btn-primary" href="{{ url_for('admin.export_stats_query', query_name=query.name) }}">
+              Télécharger
+            </a>
+            {% else %}
+            <span class="text-muted">Indisponible</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted">Aucune requête disponible.</p>
+  {% endif %}
+</div>
+{% endblock %}
