@@ -58,6 +58,11 @@
           <a class="nav-link" href="{{ url_for('user.all') }}">Utilisateurs</a>
         </li>
         {% endif %}
+        {% if user.has_role(1) %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('admin.stats') }}">Stats</a>
+        </li>
+        {% endif %}
         {% if user.can_read('patient') %}
         <li class="nav-item {% if table == 'patient' %}active{% endif %}">
           <a class="nav-link" href="{{ url_for('patient.all') }}">Patients</a>
