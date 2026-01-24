@@ -4,19 +4,52 @@ plugins:
     admin_password_hash: pbkdf2_sha256$480000$6ceebc22c629866dd54eb367ab19b92d$1WMLaSAQvIXl+L+Bpml6TBXf0YYzCdZcMkR557B0lKY=
   datasette-render-xsls:
     max_rows: 10000
+settings:
+  base_url: "/stats/"
+  max_csv_mb: 0
+  default_page_size: 5000
+  max_returned_rows: 5000
 databases:
   gestebenevole:
     allow:
       id: admin
-    allow_sql: false
+    allow_sql: true
     tables:
       consultation:
         allow: false
-      patient:
-        allow: false
+      #patient:
+        #allow: false
       appointment:
         allow: false
     queries:
+      Patients sans résidence:
+        hide_sql: false
+        sql: >-
+          SELECT
+            p.id,
+            p.firstname as firstname,
+            p.lastname as lastname,
+            p.birth as birth
+          FROM
+            patient p
+            LEFT JOIN residency r ON r.patient = p.id
+          WHERE
+            r.id IS NULL;
+      Patients sans droits sociaux:
+        hide_sql: false
+        sql: >-
+          SELECT
+            DISTINCT p.id,
+            p.firstname as firstname,
+            p.lastname as lastname,
+            p.birth as birth
+          FROM
+            patient p
+            LEFT JOIN coverage c ON c.patient = p.id
+          WHERE
+            c.id IS NULL
+            OR c.current IS NULL
+            OR TRIM(c.current) = '';
       Prescriptions:
         hide_sql: true
         sql: >-
@@ -487,3 +520,23 @@ databases:
           JOIN user ON user.id = consultation.healer
           LEFT JOIN drugstore ON prescription.drugstore = drugstore.id
           ORDER BY consultation.date DESC;
+      Consultations sans pharmacie:
+        hide_sql: true
+        sql: >-
+          SELECT
+            c.id as id,
+            c.date as date,
+            p.firstname as firstname,
+            p.lastname as lastname,
+            p.birth as birth,
+            user.name AS healer_name,
+            c.location
+          FROM
+            consultation c
+            LEFT JOIN prescription pr ON pr.consultation = c.id
+            JOIN patient p ON p.id = c.patient
+            JOIN user ON user.id = c.healer
+          WHERE
+            pr.id IS NULL
+          ORDER BY
+            c.date DESC;
