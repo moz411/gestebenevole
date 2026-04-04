@@ -4,7 +4,7 @@
 {% if can_write %}
     {% if id and table in [ 'patient', 'consultation'] %}
     <form id="dynamicForm">
-    {% elif id and table in ['user', 'drugstore', 'appointment'] %}
+    {% elif id and table in ['user', 'drugstore', 'appointment', 'physiotherapy', 'psychology'] %}
     <form method="post" action="{{ url_for( table + '.update')  }}/{{ id }}">
     {% else %}
     <form method="post" action="{{ url_for( table + '.create') }}">
@@ -29,7 +29,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        {% if can_write and ((table in ['user', 'drugstore', 'appointment']) or (not id and table in ['patient'])) %}
+        {% if can_write and ((table in ['user', 'drugstore', 'appointment', 'physiotherapy', 'psychology']) or (not id and table in ['patient'])) %}
         <div class="d-flex justify-content-center">
             <input type="submit" class="btn btn-primary mb-2" value="Soumettre">
         </div>

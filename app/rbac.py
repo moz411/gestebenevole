@@ -6,22 +6,34 @@ from .roles import Role
 class PermissionMatrix:
     create = {
         'user': [Role.ADMIN],
-        'patient': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER],
+        'patient': [Role.RECEPTION, Role.DOCTOR],
         'drugstore': [Role.PHARMACIST],
         'consultation': [Role.DOCTOR],
         'prescription': [Role.DOCTOR],
         'orientation': [Role.DOCTOR],
         'appointment': [Role.SOCIAL_WORKER],
-        'residency': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER],
-        'coverage': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER]
+        'physiotherapy': [Role.PHYSIOTHERAPIST],
+        'psychology': [Role.PSYCHOLOGIST],
+        'residency': [Role.RECEPTION, Role.DOCTOR],
+        'coverage': [Role.RECEPTION, Role.DOCTOR]
     }
 
     read = {
         'user': [Role.ADMIN],
-        'patient': [Role.ADMIN, Role.RECEPTION, Role.SOCIAL_WORKER, Role.DOCTOR, Role.PHARMACIST],
+        'patient': [
+            Role.ADMIN,
+            Role.RECEPTION,
+            Role.SOCIAL_WORKER,
+            Role.PSYCHOLOGIST,
+            Role.DOCTOR,
+            Role.PHARMACIST,
+            Role.PHYSIOTHERAPIST,
+        ],
         'drugstore': [Role.PHARMACIST],
         'consultation': [Role.DOCTOR],
-        'appointment': [Role.SOCIAL_WORKER]
+        'appointment': [Role.SOCIAL_WORKER],
+        'physiotherapy': [Role.PHYSIOTHERAPIST],
+        'psychology': [Role.PSYCHOLOGIST]
     }
 
 def can_create(user, table):
@@ -34,4 +46,3 @@ def can_read(user, table):
 
 def can_write(user, table):
     return can_create(user, table)
-

@@ -1,6 +1,6 @@
 # main.py
 
-from datetime import datetime
+from datetime import datetime, date
 import json
 from flask import Blueprint, request, render_template, redirect, url_for, make_response, abort
 from flask_login import login_required, current_user
@@ -33,7 +33,7 @@ def create_blueprint_for_model(model_class):
             text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
             db.session.execute(text)
             db.session.commit()
-        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment']:
+        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment', 'physiotherapy', 'psychology']:
             return redirect(request.referrer + '#bottom')
         elif model_class.__tablename__ in ['patient']:
             return redirect(url_for(f"{model_class.__tablename__}.update") + "/" + repr(new_entry.id))
@@ -48,6 +48,9 @@ def create_blueprint_for_model(model_class):
         id = request.form.get('id')
         if id:
             entry = model_class.query.get(id)
+            if model_class.__tablename__ in ['appointment', 'physiotherapy', 'psychology']:
+                if not utils.can_modify_recent_entry(entry, current_user):
+                    return abort(403)
             db.session.delete(entry)
             db.session.commit()
         return redirect(request.referrer + '#bottom')
@@ -67,6 +70,16 @@ def create_blueprint_for_model(model_class):
                    'columns': [],
                    'can_write': can_write,
                    'read_only': not can_write}
+
+        if (
+            id
+            and model_class.__tablename__ in ['appointment', 'physiotherapy', 'psychology']
+            and not utils.can_modify_recent_entry(payload['data'], current_user)
+        ):
+            can_write = False
+            payload['can_write'] = False
+            payload['read_only'] = True
+
         # Replace text by Python datetime object.
         form_data = utils.convert_form_data(request.form)
 
@@ -75,6 +88,9 @@ def create_blueprint_for_model(model_class):
             return abort(403)
 
         if id and request.method == 'POST':
+            if model_class.__tablename__ in ['appointment', 'physiotherapy', 'psychology']:
+                if not utils.can_modify_recent_entry(payload['data'], current_user):
+                    return abort(403)
             for key in form_data:
                 if hasattr(payload['data'], key):
                     setattr(payload['data'], key, form_data[key])
@@ -112,7 +128,7 @@ def create_blueprint_for_model(model_class):
             order_by = sql.text("viewed desc")
         elif model_class.__tablename__  == "drugstore":
             order_by = sql.text("name")
-        if model_class.__tablename__ in ['consultation', 'prescription', 'appointment']:
+        if model_class.__tablename__ in ['consultation', 'prescription', 'appointment', 'physiotherapy', 'psychology']:
             return redirect(url_for(f"patient.all"))
 
         payload = {'table': model_class.__tablename__, 

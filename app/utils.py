@@ -1,11 +1,65 @@
 import re
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from dateutil.relativedelta import relativedelta
 from flask import url_for
 from flask_login import login_required, current_user
 from .roles import Role
 from sqlalchemy import sql
 from .models import db
+
+
+def _extract_field(entry, key):
+    if entry is None:
+        return None
+    if isinstance(entry, dict):
+        return entry.get(key)
+    return getattr(entry, key, None)
+
+
+def _normalize_to_date(value):
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        try:
+            return datetime.strptime(value[:10], '%Y-%m-%d').date()
+        except ValueError:
+            return None
+    return None
+
+
+def can_modify_recent_entry(entry, user, hours=24):
+    if not entry or not user:
+        return False
+
+    healer = _extract_field(entry, 'healer')
+    try:
+        healer = int(healer)
+    except (TypeError, ValueError):
+        return False
+    if healer != user.id:
+        return False
+
+    entry_date = _normalize_to_date(_extract_field(entry, 'date'))
+    if not entry_date:
+        return False
+
+    # Les modèles ciblés stockent une DATE sans heure.
+    # On approxime donc "les dernières 24h" à aujourd'hui + hier.
+    min_allowed = (datetime.now() - timedelta(hours=hours)).date()
+    return min_allowed <= entry_date <= date.today()
+
+
+def annotate_deletable_rows(rows, user):
+    annotated_rows = []
+    for row in rows or []:
+        row_data = dict(row._mapping) if hasattr(row, "_mapping") else dict(row)
+        can_modify = can_modify_recent_entry(row_data, user)
+        row_data['_deletable'] = can_modify
+        row_data['_editable'] = can_modify
+        annotated_rows.append(row_data)
+    return annotated_rows
 
 def prepare_datasets(model_class):
     datasets = {}
@@ -115,6 +169,8 @@ def generate_rows(model_class, payload):
     if id and model_class.__tablename__ == 'patient':
         payload['consultations'] = retreive('consultation', 'patient', id)
         payload['appointments'] = retreive('appointment', 'patient', id)
+        payload['physiotherapies'] = retreive('physiotherapy', 'patient', id)
+        payload['psychologies'] = retreive('psychology', 'patient', id)
         payload['residencies'] = retreive('residency', 'patient', id)
         payload['coverages'] = retreive('coverage', 'patient', id)
         payload['datasets'] = prepare_datasets(['user', 'city', 'accommodation'])
@@ -129,7 +185,11 @@ def generate_rows(model_class, payload):
     for col in model_class.__table__.columns:
         value = getattr(data, col.name)
         required = "required" if col.nullable == False else ""
-        if col.name == 'id' or (col.name in ["history", "vaccination", "notes", "treatment"] and not current_user.has_role(Role.DOCTOR)):
+        if col.name == 'id' or (
+            model_class.__tablename__ == 'patient'
+            and col.name in ["history", "vaccination", "notes", "treatment"]
+            and not current_user.has_role(Role.DOCTOR)
+        ):
             continue
         elif str(col.type) == 'INTEGER':
             if model_class.__tablename__ == 'drugstore':
@@ -305,11 +365,64 @@ def build_sections(table, payload, user):
             'popup': 'appointments',
             'table_headers': ['Date', 'Motif', 'Notes sur le rendez-vous'],
             'table_content': ['date', 'motive', 'notes'],
-            'rows': payload.get('appointments'),
+            'rows': annotate_deletable_rows(payload.get('appointments'), user),
             'form_action': url_for('appointment.create'),
             'delete_action': url_for('appointment.delete'),
+            'update_action': url_for('appointment.update'),
             'name': 'patient',
             'writable': user.can_write('appointment'),
+            'form_fields': [
+                {'label': 'Motif', 'input': '<input type="text" name="motive" class="col-md-12">'},
+                {
+                    'label': 'Notes',
+                    'input': '<textarea rows="4" name="notes" class="col-md-12"></textarea>',
+                },
+                {
+                    'input': f'<input type="number" name="healer" value="{user.id}" hidden>'
+                },
+            ],
+            'print_url': False,
+            'print_items': False,
+        })
+
+    if table == 'patient' and id and user and user.can_create('physiotherapy'):
+        sections.append({
+            'title': 'Kinésithérapie',
+            'popup': 'physiotherapy',
+            'table_headers': ['Date', 'Motif', 'Notes sur la séance'],
+            'table_content': ['date', 'motive', 'notes'],
+            'rows': annotate_deletable_rows(payload.get('physiotherapies'), user),
+            'form_action': url_for('physiotherapy.create'),
+            'delete_action': url_for('physiotherapy.delete'),
+            'update_action': url_for('physiotherapy.update'),
+            'name': 'patient',
+            'writable': user.can_write('physiotherapy'),
+            'form_fields': [
+                {'label': 'Motif', 'input': '<input type="text" name="motive" class="col-md-12">'},
+                {
+                    'label': 'Notes',
+                    'input': '<textarea rows="4" name="notes" class="col-md-12"></textarea>',
+                },
+                {
+                    'input': f'<input type="number" name="healer" value="{user.id}" hidden>'
+                },
+            ],
+            'print_url': False,
+            'print_items': False,
+        })
+
+    if table == 'patient' and id and user and user.can_create('psychology'):
+        sections.append({
+            'title': 'Psychologie',
+            'popup': 'psychology',
+            'table_headers': ['Date', 'Motif', 'Notes sur la séance'],
+            'table_content': ['date', 'motive', 'notes'],
+            'rows': annotate_deletable_rows(payload.get('psychologies'), user),
+            'form_action': url_for('psychology.create'),
+            'delete_action': url_for('psychology.delete'),
+            'update_action': url_for('psychology.update'),
+            'name': 'patient',
+            'writable': user.can_write('psychology'),
             'form_fields': [
                 {'label': 'Motif', 'input': '<input type="text" name="motive" class="col-md-12">'},
                 {

@@ -16,11 +16,12 @@
     </div>
 </div>
 
-<table class="table">
+<table class="table gb-section-table">
     <thead>
         <tr>
             {% for header in section.table_headers %}
-            <th class="col-md-1">{{ header }}</th>
+            {% set key = section.table_content[loop.index0] if loop.index0 < section.table_content|length else '' %}
+            <th class="{% if key == 'date' %}section-date-col{% elif key in ['motive', 'notes'] %}section-wide-col{% endif %}">{{ header }}</th>
             {% endfor %}
         </tr>
     </thead>
@@ -28,20 +29,25 @@
         {% for row in section.rows %}
         <tr>
             {% for column in section.table_content %}
-            <td class="col-md-1 {{ column }}">{{ row[column] }}</td>
+            <td class="{{ column }} {% if column == 'date' %}section-date-col{% elif column in ['motive', 'notes'] %}section-wide-col{% endif %}">{{ row[column] }}</td>
             {% endfor %}
             {% if section.print_items %}
-            <td class="col-md-1">
+            <td class="section-actions-col text-right">
                 {% set print_url=url_for('consultation.print_orientation', orientation_id=row.id) %}
                 <button class="btn btn-primary" onclick="window.open('{{ print_url }}')">Imprimer</button>
             </td>
             {% endif %}
-            {% if deletable and section.writable %}
-            <td class="col-md-1">
+            {% if section.writable and (row['_deletable'] if '_deletable' in row else deletable) %}
+            <td class="section-actions-col text-right">
                 <form action="{{ section.delete_action }}" method="post">
                     <input type="number" name="id" value="{{ row.id }}" hidden>
                     <button type="submit" class="btn btn-danger">Supprimer</button>
                 </form>
+            </td>
+            {% endif %}
+            {% if section.writable and section.update_action and (row['_editable'] if '_editable' in row else false) %}
+            <td class="section-actions-col text-right">
+                <a class="btn btn-primary" href="{{ section.update_action }}/{{ row.id }}">Modifier</a>
             </td>
             {% endif %}
         </tr>
