@@ -44,6 +44,11 @@
                 </form>
             </td>
             {% endif %}
+            {% if section.writable and section.update_action and (row['_editable'] if '_editable' in row else false) %}
+            <td class="col-md-1">
+                <a class="btn btn-primary" href="{{ section.update_action }}/{{ row.id }}">Modifier</a>
+            </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>

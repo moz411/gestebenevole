@@ -1,6 +1,6 @@
 # main.py
 
-from datetime import datetime
+from datetime import datetime, date
 import json
 from flask import Blueprint, request, render_template, redirect, url_for, make_response, abort
 from flask_login import login_required, current_user
@@ -48,6 +48,9 @@ def create_blueprint_for_model(model_class):
         id = request.form.get('id')
         if id:
             entry = model_class.query.get(id)
+            if model_class.__tablename__ in ['appointment', 'physiotherapy', 'psychology']:
+                if not entry or entry.healer != current_user.id or entry.date != date.today():
+                    return abort(403)
             db.session.delete(entry)
             db.session.commit()
         return redirect(request.referrer + '#bottom')
@@ -75,6 +78,9 @@ def create_blueprint_for_model(model_class):
             return abort(403)
 
         if id and request.method == 'POST':
+            if model_class.__tablename__ in ['appointment', 'physiotherapy', 'psychology']:
+                if payload['data'].healer != current_user.id or payload['data'].date != date.today():
+                    return abort(403)
             for key in form_data:
                 if hasattr(payload['data'], key):
                     setattr(payload['data'], key, form_data[key])

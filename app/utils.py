@@ -13,9 +13,11 @@ def annotate_deletable_rows(rows, user):
     annotated_rows = []
     for row in rows or []:
         row_data = dict(row._mapping) if hasattr(row, "_mapping") else dict(row)
-        row_data['_deletable'] = (
+        can_modify = (
             row_data.get('healer') == user.id and row_data.get('date') == today
         )
+        row_data['_deletable'] = can_modify
+        row_data['_editable'] = can_modify
         annotated_rows.append(row_data)
     return annotated_rows
 
@@ -322,6 +324,7 @@ def build_sections(table, payload, user):
             'rows': annotate_deletable_rows(payload.get('appointments'), user),
             'form_action': url_for('appointment.create'),
             'delete_action': url_for('appointment.delete'),
+            'update_action': url_for('appointment.update'),
             'name': 'patient',
             'writable': user.can_write('appointment'),
             'form_fields': [
@@ -347,6 +350,7 @@ def build_sections(table, payload, user):
             'rows': annotate_deletable_rows(payload.get('physiotherapies'), user),
             'form_action': url_for('physiotherapy.create'),
             'delete_action': url_for('physiotherapy.delete'),
+            'update_action': url_for('physiotherapy.update'),
             'name': 'patient',
             'writable': user.can_write('physiotherapy'),
             'form_fields': [
@@ -372,6 +376,7 @@ def build_sections(table, payload, user):
             'rows': annotate_deletable_rows(payload.get('psychologies'), user),
             'form_action': url_for('psychology.create'),
             'delete_action': url_for('psychology.delete'),
+            'update_action': url_for('psychology.update'),
             'name': 'patient',
             'writable': user.can_write('psychology'),
             'form_fields': [
