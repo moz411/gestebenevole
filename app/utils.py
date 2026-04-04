@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from dateutil.relativedelta import relativedelta
 from flask import url_for
 from flask_login import login_required, current_user
@@ -8,14 +8,54 @@ from sqlalchemy import sql
 from .models import db
 
 
+def _extract_field(entry, key):
+    if entry is None:
+        return None
+    if isinstance(entry, dict):
+        return entry.get(key)
+    return getattr(entry, key, None)
+
+
+def _normalize_to_date(value):
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        try:
+            return datetime.strptime(value[:10], '%Y-%m-%d').date()
+        except ValueError:
+            return None
+    return None
+
+
+def can_modify_recent_entry(entry, user, hours=24):
+    if not entry or not user:
+        return False
+
+    healer = _extract_field(entry, 'healer')
+    try:
+        healer = int(healer)
+    except (TypeError, ValueError):
+        return False
+    if healer != user.id:
+        return False
+
+    entry_date = _normalize_to_date(_extract_field(entry, 'date'))
+    if not entry_date:
+        return False
+
+    # Les modèles ciblés stockent une DATE sans heure.
+    # On approxime donc "les dernières 24h" à aujourd'hui + hier.
+    min_allowed = (datetime.now() - timedelta(hours=hours)).date()
+    return min_allowed <= entry_date <= date.today()
+
+
 def annotate_deletable_rows(rows, user):
-    today = date.today()
     annotated_rows = []
     for row in rows or []:
         row_data = dict(row._mapping) if hasattr(row, "_mapping") else dict(row)
-        can_modify = (
-            row_data.get('healer') == user.id and row_data.get('date') == today
-        )
+        can_modify = can_modify_recent_entry(row_data, user)
         row_data['_deletable'] = can_modify
         row_data['_editable'] = can_modify
         annotated_rows.append(row_data)
@@ -145,7 +185,11 @@ def generate_rows(model_class, payload):
     for col in model_class.__table__.columns:
         value = getattr(data, col.name)
         required = "required" if col.nullable == False else ""
-        if col.name == 'id' or (col.name in ["history", "vaccination", "notes", "treatment"] and not current_user.has_role(Role.DOCTOR)):
+        if col.name == 'id' or (
+            model_class.__tablename__ == 'patient'
+            and col.name in ["history", "vaccination", "notes", "treatment"]
+            and not current_user.has_role(Role.DOCTOR)
+        ):
             continue
         elif str(col.type) == 'INTEGER':
             if model_class.__tablename__ == 'drugstore':

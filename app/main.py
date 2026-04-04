@@ -49,7 +49,7 @@ def create_blueprint_for_model(model_class):
         if id:
             entry = model_class.query.get(id)
             if model_class.__tablename__ in ['appointment', 'physiotherapy', 'psychology']:
-                if not entry or entry.healer != current_user.id or entry.date != date.today():
+                if not utils.can_modify_recent_entry(entry, current_user):
                     return abort(403)
             db.session.delete(entry)
             db.session.commit()
@@ -70,6 +70,16 @@ def create_blueprint_for_model(model_class):
                    'columns': [],
                    'can_write': can_write,
                    'read_only': not can_write}
+
+        if (
+            id
+            and model_class.__tablename__ in ['appointment', 'physiotherapy', 'psychology']
+            and not utils.can_modify_recent_entry(payload['data'], current_user)
+        ):
+            can_write = False
+            payload['can_write'] = False
+            payload['read_only'] = True
+
         # Replace text by Python datetime object.
         form_data = utils.convert_form_data(request.form)
 
@@ -79,7 +89,7 @@ def create_blueprint_for_model(model_class):
 
         if id and request.method == 'POST':
             if model_class.__tablename__ in ['appointment', 'physiotherapy', 'psychology']:
-                if payload['data'].healer != current_user.id or payload['data'].date != date.today():
+                if not utils.can_modify_recent_entry(payload['data'], current_user):
                     return abort(403)
             for key in form_data:
                 if hasattr(payload['data'], key):
