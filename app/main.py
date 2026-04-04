@@ -33,7 +33,7 @@ def create_blueprint_for_model(model_class):
             text = sql.text(f"UPDATE drugstore SET qty = qty - {form_data['qty']} WHERE id = {form_data['drugstore']}")
             db.session.execute(text)
             db.session.commit()
-        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment', 'physiotherapy']:
+        if model_class.__tablename__ in ['prescription', 'orientation', 'residency', 'coverage', 'appointment', 'physiotherapy', 'psychology']:
             return redirect(request.referrer + '#bottom')
         elif model_class.__tablename__ in ['patient']:
             return redirect(url_for(f"{model_class.__tablename__}.update") + "/" + repr(new_entry.id))
@@ -112,7 +112,7 @@ def create_blueprint_for_model(model_class):
             order_by = sql.text("viewed desc")
         elif model_class.__tablename__  == "drugstore":
             order_by = sql.text("name")
-        if model_class.__tablename__ in ['consultation', 'prescription', 'appointment', 'physiotherapy']:
+        if model_class.__tablename__ in ['consultation', 'prescription', 'appointment', 'physiotherapy', 'psychology']:
             return redirect(url_for(f"patient.all"))
 
         payload = {'table': model_class.__tablename__, 

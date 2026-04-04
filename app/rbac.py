@@ -13,6 +13,7 @@ class PermissionMatrix:
         'orientation': [Role.DOCTOR],
         'appointment': [Role.SOCIAL_WORKER],
         'physiotherapy': [Role.PHYSIOTHERAPIST],
+        'psychology': [Role.PSYCHOLOGIST],
         'residency': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER],
         'coverage': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER]
     }
@@ -31,7 +32,8 @@ class PermissionMatrix:
         'drugstore': [Role.PHARMACIST],
         'consultation': [Role.DOCTOR],
         'appointment': [Role.SOCIAL_WORKER],
-        'physiotherapy': [Role.PHYSIOTHERAPIST]
+        'physiotherapy': [Role.PHYSIOTHERAPIST],
+        'psychology': [Role.PSYCHOLOGIST]
     }
 
 def can_create(user, table):
