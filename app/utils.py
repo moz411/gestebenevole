@@ -115,6 +115,7 @@ def generate_rows(model_class, payload):
     if id and model_class.__tablename__ == 'patient':
         payload['consultations'] = retreive('consultation', 'patient', id)
         payload['appointments'] = retreive('appointment', 'patient', id)
+        payload['physiotherapies'] = retreive('physiotherapy', 'patient', id)
         payload['residencies'] = retreive('residency', 'patient', id)
         payload['coverages'] = retreive('coverage', 'patient', id)
         payload['datasets'] = prepare_datasets(['user', 'city', 'accommodation'])
@@ -310,6 +311,31 @@ def build_sections(table, payload, user):
             'delete_action': url_for('appointment.delete'),
             'name': 'patient',
             'writable': user.can_write('appointment'),
+            'form_fields': [
+                {'label': 'Motif', 'input': '<input type="text" name="motive" class="col-md-12">'},
+                {
+                    'label': 'Notes',
+                    'input': '<textarea rows="4" name="notes" class="col-md-12"></textarea>',
+                },
+                {
+                    'input': f'<input type="number" name="healer" value="{user.id}" hidden>'
+                },
+            ],
+            'print_url': False,
+            'print_items': False,
+        })
+
+    if table == 'patient' and id and user and user.can_create('physiotherapy'):
+        sections.append({
+            'title': 'Kinésithérapie',
+            'popup': 'physiotherapy',
+            'table_headers': ['Date', 'Motif', 'Notes sur la séance'],
+            'table_content': ['date', 'motive', 'notes'],
+            'rows': payload.get('physiotherapies'),
+            'form_action': url_for('physiotherapy.create'),
+            'delete_action': url_for('physiotherapy.delete'),
+            'name': 'patient',
+            'writable': user.can_write('physiotherapy'),
             'form_fields': [
                 {'label': 'Motif', 'input': '<input type="text" name="motive" class="col-md-12">'},
                 {

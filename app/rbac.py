@@ -12,6 +12,7 @@ class PermissionMatrix:
         'prescription': [Role.DOCTOR],
         'orientation': [Role.DOCTOR],
         'appointment': [Role.SOCIAL_WORKER],
+        'physiotherapy': [Role.PHYSIOTHERAPIST],
         'residency': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER],
         'coverage': [Role.RECEPTION, Role.DOCTOR, Role.SOCIAL_WORKER]
     }
@@ -21,7 +22,8 @@ class PermissionMatrix:
         'patient': [Role.ADMIN, Role.RECEPTION, Role.SOCIAL_WORKER, Role.DOCTOR, Role.PHARMACIST],
         'drugstore': [Role.PHARMACIST],
         'consultation': [Role.DOCTOR],
-        'appointment': [Role.SOCIAL_WORKER]
+        'appointment': [Role.SOCIAL_WORKER],
+        'physiotherapy': [Role.PHYSIOTHERAPIST]
     }
 
 def can_create(user, table):
@@ -34,4 +36,3 @@ def can_read(user, table):
 
 def can_write(user, table):
     return can_create(user, table)
-

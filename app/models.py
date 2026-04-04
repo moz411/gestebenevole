@@ -78,6 +78,15 @@ class Appointment(db.Model):
     motive = Column(String, nullable=False, info={'name': 'Motif'})
     notes = Column(Text, info={'name': 'Notes sur le rendez-vous'})
 
+class Physiotherapy(db.Model):
+    __tablename__ = 'physiotherapy'
+    id = Column(Integer, primary_key=True)
+    date = Column(Date, nullable=False,  info={'name': 'Date'})
+    patient = Column(Integer, ForeignKey('patient.id'), nullable=False, info={'name': 'Patient', 'list': 'visible'})
+    healer = Column(Integer,ForeignKey('user.id'), nullable=False, info={'name': 'Kinésithérapeute', 'list': 'visible'})
+    motive = Column(String, nullable=False, info={'name': 'Motif'})
+    notes = Column(Text, info={'name': 'Notes sur la séance'})
+
 class Prescription(db.Model):
     __tablename__ = 'prescription'
     id = Column(Integer, primary_key=True)

@@ -7,3 +7,4 @@ class Role(IntEnum):
     SOCIAL_WORKER = 4
     PSYCHOLOGIST = 5
     DOCTOR = 6
+    PHYSIOTHERAPIST = 7
