@@ -19,7 +19,15 @@ class PermissionMatrix:
 
     read = {
         'user': [Role.ADMIN],
-        'patient': [Role.ADMIN, Role.RECEPTION, Role.SOCIAL_WORKER, Role.DOCTOR, Role.PHARMACIST],
+        'patient': [
+            Role.ADMIN,
+            Role.RECEPTION,
+            Role.SOCIAL_WORKER,
+            Role.PSYCHOLOGIST,
+            Role.DOCTOR,
+            Role.PHARMACIST,
+            Role.PHYSIOTHERAPIST,
+        ],
         'drugstore': [Role.PHARMACIST],
         'consultation': [Role.DOCTOR],
         'appointment': [Role.SOCIAL_WORKER],
