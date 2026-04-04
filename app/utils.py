@@ -7,6 +7,18 @@ from .roles import Role
 from sqlalchemy import sql
 from .models import db
 
+
+def annotate_deletable_rows(rows, user):
+    today = date.today()
+    annotated_rows = []
+    for row in rows or []:
+        row_data = dict(row._mapping) if hasattr(row, "_mapping") else dict(row)
+        row_data['_deletable'] = (
+            row_data.get('healer') == user.id and row_data.get('date') == today
+        )
+        annotated_rows.append(row_data)
+    return annotated_rows
+
 def prepare_datasets(model_class):
     datasets = {}
     # if model_class is a string
@@ -307,7 +319,7 @@ def build_sections(table, payload, user):
             'popup': 'appointments',
             'table_headers': ['Date', 'Motif', 'Notes sur le rendez-vous'],
             'table_content': ['date', 'motive', 'notes'],
-            'rows': payload.get('appointments'),
+            'rows': annotate_deletable_rows(payload.get('appointments'), user),
             'form_action': url_for('appointment.create'),
             'delete_action': url_for('appointment.delete'),
             'name': 'patient',
@@ -332,7 +344,7 @@ def build_sections(table, payload, user):
             'popup': 'physiotherapy',
             'table_headers': ['Date', 'Motif', 'Notes sur la séance'],
             'table_content': ['date', 'motive', 'notes'],
-            'rows': payload.get('physiotherapies'),
+            'rows': annotate_deletable_rows(payload.get('physiotherapies'), user),
             'form_action': url_for('physiotherapy.create'),
             'delete_action': url_for('physiotherapy.delete'),
             'name': 'patient',
@@ -357,7 +369,7 @@ def build_sections(table, payload, user):
             'popup': 'psychology',
             'table_headers': ['Date', 'Motif', 'Notes sur la séance'],
             'table_content': ['date', 'motive', 'notes'],
-            'rows': payload.get('psychologies'),
+            'rows': annotate_deletable_rows(payload.get('psychologies'), user),
             'form_action': url_for('psychology.create'),
             'delete_action': url_for('psychology.delete'),
             'name': 'patient',
